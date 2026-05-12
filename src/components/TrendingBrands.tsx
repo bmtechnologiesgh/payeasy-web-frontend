@@ -2,8 +2,17 @@ import Link from "next/link";
 import { SectionHeading } from "@/components/SectionHeading";
 
 const brands = [
-  ["Dyson", "Lenovo", "Cisco", "Samsung", "LG", "Bose"],
-  ["Apple", "Google", "Nvidia", "Electrolux", "Sony", "Intel"],
+  "Samsung",
+  "Apple",
+  "Tecno",
+  "Infinix",
+  "Itel",
+  "HP",
+  "Dell",
+  "Lenovo",
+  "Midea",
+  "Nasco",
+  "TCL",
 ] as const;
 
 export function TrendingBrands() {
@@ -16,10 +25,10 @@ export function TrendingBrands() {
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        {brands.flat().map((name) => (
+        {brands.map((name) => (
           <Link
             key={name}
-            href="/catalog"
+            href={`/catalog?q=${encodeURIComponent(name)}`}
             className="flex min-h-[72px] items-center justify-center rounded-xl border border-[color:var(--color-border)] bg-white px-6 py-5 text-center font-[family-name:var(--font-heading)] text-lg font-bold text-[color:var(--color-foreground)] shadow-sm transition hover:bg-[color:var(--color-muted-bg)]"
           >
             {name}

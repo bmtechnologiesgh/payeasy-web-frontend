@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EmployerLeadForm } from "@/components/EmployerLeadForm";
 
 export const metadata: Metadata = {
   title: "For employers",
@@ -46,7 +47,7 @@ export default function EmployersPage() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/employers"
+              href="#employer-lead-form"
               className="inline-flex items-center justify-center rounded-xl bg-[color:var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--color-accent-hover)]"
             >
               Talk to our team
@@ -104,6 +105,29 @@ export default function EmployersPage() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_0.85fr] lg:items-start">
+        <EmployerLeadForm />
+        <div className="rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-muted-bg)] p-6">
+          <h2 className="font-[family-name:var(--font-heading)] text-xl font-bold text-[color:var(--color-foreground)]">
+            What happens after you submit?
+          </h2>
+          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--color-muted)]">
+            <li>
+              <span className="font-semibold text-[color:var(--color-foreground)]">1. Qualification call:</span>{" "}
+              confirm headcount, payroll cycle, and HR signatory.
+            </li>
+            <li>
+              <span className="font-semibold text-[color:var(--color-foreground)]">2. Deduction setup:</span>{" "}
+              choose employee caps, reporting cadence, and remittance workflow.
+            </li>
+            <li>
+              <span className="font-semibold text-[color:var(--color-foreground)]">3. Staff launch:</span>{" "}
+              employees get a salary-aware catalogue they can use immediately.
+            </li>
+          </ul>
+        </div>
       </section>
 
       <p className="mt-8 text-center text-xs text-[color:var(--color-muted)]">

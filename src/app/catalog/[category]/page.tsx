@@ -10,6 +10,7 @@ import {
   getCategories,
   getCategoryBySlug,
 } from "@/lib/catalog";
+import { formatGhs } from "@/lib/format";
 import {
   applyEligibility,
   buildSalaryContext,
@@ -60,6 +61,7 @@ export default async function CategoryCatalogPage({
 
   const salaryGhs = readSalaryFromSearchParams(sp.salary);
   const ctx = buildSalaryContext(salaryGhs);
+  const eligibleOnly = first(sp.eligible) === "1" && salaryGhs != null;
 
   const filtered = filterProducts({
     categorySlug: slug,
@@ -67,7 +69,7 @@ export default async function CategoryCatalogPage({
     min: Number.isFinite(min) ? min : undefined,
     max: Number.isFinite(max) ? max : undefined,
   });
-  const products = applyEligibility(filtered, ctx, { payrollOnly });
+  const products = applyEligibility(filtered, ctx, { payrollOnly, eligibleOnly });
 
   const actionPath = `/catalog/${slug}`;
   const preserve: Record<string, string | undefined> = {
@@ -75,6 +77,7 @@ export default async function CategoryCatalogPage({
     min: Number.isFinite(min) ? String(min) : undefined,
     max: Number.isFinite(max) ? String(max) : undefined,
     payroll: payrollOnly ? "1" : undefined,
+    eligible: eligibleOnly ? "1" : undefined,
   };
 
   return (
@@ -96,8 +99,9 @@ export default async function CategoryCatalogPage({
           {cat.name}
         </h1>
         <p className="mt-2 text-sm text-[color:var(--color-muted)]">
-          {cat.count} products in this category. Each row shows the lowest monthly across 3–6 month plans —
-          fee included.
+          {eligibleOnly && salaryGhs != null
+            ? `Showing the ${cat.name} products unlocked by your ${formatGhs(ctx.creditLimitGhs)} credit limit.`
+            : `${cat.count} products in this category. Each row shows the lowest monthly across 3-6 month plans - fee included.`}
         </p>
       </header>
 
@@ -106,7 +110,7 @@ export default async function CategoryCatalogPage({
       </div>
 
       <div className="mb-6">
-        <EligibilityBanner products={products} ctx={ctx} />
+        <EligibilityBanner products={products} ctx={ctx} eligibleOnly={eligibleOnly} />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[260px_1fr] lg:items-start">
@@ -117,6 +121,7 @@ export default async function CategoryCatalogPage({
           q={q}
           salary={salaryGhs ?? undefined}
           payrollOnly={payrollOnly}
+          eligibleOnly={eligibleOnly}
         />
         <ProductGrid
           products={products}

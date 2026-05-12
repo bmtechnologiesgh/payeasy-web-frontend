@@ -218,13 +218,17 @@ export function withSalaryParam(href: string, salaryGhs: number | null): string 
 export function applyEligibility(
   products: Product[],
   ctx: SalaryContext,
-  opts: { payrollOnly?: boolean } = {},
+  opts: { payrollOnly?: boolean; eligibleOnly?: boolean } = {},
 ): Product[] {
   if (ctx.salaryGhs == null) return products;
 
   const ranked = products
     .map((p) => ({ p, e: evaluateProduct(p, ctx) }))
-    .filter(({ e }) => (opts.payrollOnly ? e.status !== "locked" : true));
+    .filter(({ e }) => {
+      if (opts.eligibleOnly) return e.status === "approved";
+      if (opts.payrollOnly) return e.status !== "locked";
+      return true;
+    });
 
   const order: Record<EligibilityStatus, number> = {
     approved: 0,

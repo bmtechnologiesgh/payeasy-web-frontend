@@ -7,12 +7,14 @@ type Props = {
   q?: string;
   salary?: number;
   payrollOnly?: boolean;
+  eligibleOnly?: boolean;
 };
 
-export function CatalogSidebar({ actionPath, min, max, q, salary, payrollOnly }: Props) {
+export function CatalogSidebar({ actionPath, min, max, q, salary, payrollOnly, eligibleOnly }: Props) {
   const resetParams = new URLSearchParams();
   if (q) resetParams.set("q", q);
   if (salary != null) resetParams.set("salary", String(salary));
+  if (eligibleOnly) resetParams.set("eligible", "1");
   const resetHref = resetParams.toString() ? `${actionPath}?${resetParams.toString()}` : actionPath;
 
   return (
@@ -73,6 +75,21 @@ export function CatalogSidebar({ actionPath, min, max, q, salary, payrollOnly }:
           <legend className="px-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-muted)]">
             BNPL
           </legend>
+          <label className="flex items-start gap-2 text-xs text-[color:var(--color-foreground)]">
+            <input
+              type="checkbox"
+              name="eligible"
+              value="1"
+              defaultChecked={eligibleOnly ?? false}
+              className="mt-0.5 h-4 w-4 accent-[color:var(--color-foreground)]"
+            />
+            <span>
+              <span className="font-semibold">Products I can buy now</span>
+              <span className="block text-[11px] text-[color:var(--color-muted)]">
+                Match both your credit limit and the 30% deduction cap.
+              </span>
+            </span>
+          </label>
           <label className="flex items-start gap-2 text-xs text-[color:var(--color-foreground)]">
             <input
               type="checkbox"
