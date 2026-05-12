@@ -10,6 +10,7 @@ export function PromoBannerStrip() {
     {
       href: "/eligibility",
       label: "Step 1 · Eligibility",
+      shortLabel: "Eligibility",
       labelClass: "text-[color:var(--color-foreground)]",
       headline: "Estimate your credit limit in under 30 seconds.",
       icon: (
@@ -23,6 +24,7 @@ export function PromoBannerStrip() {
     {
       href: "/how-it-works",
       label: "Step 2 · Plan choice",
+      shortLabel: "Plan choice",
       labelClass: "text-[color:var(--color-foreground)]",
       headline: "Compare 3 / 4 / 5 / 6-month plans side by side.",
       icon: (
@@ -36,6 +38,7 @@ export function PromoBannerStrip() {
     {
       href: "/how-it-works",
       label: "Step 3 · Payroll consent",
+      shortLabel: "Payroll",
       labelClass: "text-[color:var(--color-foreground)]",
       headline: "Authorise salary deduction. We handle the rest.",
       icon: (
@@ -49,27 +52,62 @@ export function PromoBannerStrip() {
   ] as const;
 
   return (
-    <div className="mx-auto grid max-w-[1280px] gap-3 px-4 pt-4 sm:grid-cols-3 sm:px-6">
-      {items.map((item) => (
-        <Link
-          key={item.label}
-          href={item.href}
-          className="group flex items-center gap-3 rounded-2xl border border-[color:var(--color-border-strong)] bg-white px-4 py-3 shadow-sm transition hover:border-[color:var(--color-muted)] hover:shadow-md"
-        >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-muted-bg)] text-[color:var(--color-foreground)]">
-            {item.icon}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className={`text-[10px] font-bold uppercase tracking-[0.12em] ${item.labelClass}`}>{item.label}</p>
-            <p className="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-[color:var(--color-foreground)]">
-              {item.headline}
-            </p>
-          </div>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-carousel-btn)] text-[color:var(--color-foreground)] transition group-hover:bg-[color:var(--color-muted-bg)]">
-            <IconChevronRight className="h-5 w-5" />
-          </span>
-        </Link>
-      ))}
+    <div className="mx-auto max-w-[1280px] px-4 pt-4 sm:px-6">
+      {/* Mobile: compact 3-step horizontal stepper. The full eligibility CTA
+          lives in the FinancialSummaryStrip below; this just primes the journey. */}
+      <ol
+        aria-label="Pay-Small-Small in three steps"
+        className="flex items-center justify-between gap-2 rounded-2xl border border-[color:var(--color-border)] bg-white px-3 py-3 shadow-sm sm:hidden"
+      >
+        {items.map((item, i) => (
+          <li
+            key={item.label}
+            className="flex flex-1 items-center gap-2 last:flex-initial"
+          >
+            <Link
+              href={item.href}
+              className="group flex flex-1 items-center gap-2 min-w-0"
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[11px] font-bold text-white">
+                {i + 1}
+              </span>
+              <span className="min-w-0 text-[11px] font-semibold leading-tight text-[color:var(--color-foreground)] group-hover:underline">
+                {item.shortLabel}
+              </span>
+            </Link>
+            {i < items.length - 1 ? (
+              <span
+                aria-hidden
+                className="h-px flex-1 bg-[color:var(--color-border)]"
+              />
+            ) : null}
+          </li>
+        ))}
+      </ol>
+
+      {/* Desktop: full 3-card grid (unchanged). */}
+      <div className="hidden gap-3 sm:grid sm:grid-cols-3">
+        {items.map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className="group flex items-center gap-3 rounded-2xl border border-[color:var(--color-border-strong)] bg-white px-4 py-3 shadow-sm transition hover:border-[color:var(--color-muted)] hover:shadow-md"
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-muted-bg)] text-[color:var(--color-foreground)]">
+              {item.icon}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className={`text-[10px] font-bold uppercase tracking-[0.12em] ${item.labelClass}`}>{item.label}</p>
+              <p className="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-[color:var(--color-foreground)]">
+                {item.headline}
+              </p>
+            </div>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-carousel-btn)] text-[color:var(--color-foreground)] transition group-hover:bg-[color:var(--color-muted-bg)]">
+              <IconChevronRight className="h-5 w-5" />
+            </span>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

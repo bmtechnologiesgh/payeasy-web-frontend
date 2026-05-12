@@ -22,9 +22,16 @@ export const metadata: Metadata = {
   description:
     "Browse PayEasy’s corporate BNPL product catalogue — categories, search, and installment price bands.",
   icons: {
-    icon: "/pe_favicon.png",
-    shortcut: "/pe_favicon.png",
-    apple: "/pe_favicon.png",
+    icon: [
+      { url: "/favicon/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+      { url: "/favicon/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon/favicon.ico",
+    apple: { url: "/favicon/apple-touch-icon.png", sizes: "180x180" },
+  },
+  manifest: "/favicon/site.webmanifest",
+  appleWebApp: {
+    title: "PayEasy",
   },
 };
 

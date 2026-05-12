@@ -13,39 +13,21 @@ export function SiteTopBar() {
   return (
     <div className="border-b border-[color:var(--color-border)] bg-white text-[13px] text-[color:var(--color-muted)]">
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6">
-        {/* Mobile: promo strip + utility row (matches reference secondary bar) */}
-        <div className="border-b border-[color:var(--color-border)] md:hidden">
-          <div className="flex gap-2 overflow-x-auto py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {promoLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-transparent px-3 py-1.5 font-medium text-[color:var(--color-foreground)] hover:bg-[color:var(--color-muted-bg)]"
-              >
-                <span aria-hidden className="text-[15px] opacity-90">
-                  {item.icon}
-                </span>
-                {item.label}
-              </Link>
-            ))}
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-0 pb-2.5 pt-0 text-[12px] font-medium text-[color:var(--color-foreground)]">
-            <span className="inline-flex items-center gap-1 text-[color:var(--color-muted)]">
-              Employer-verified
-              <IconChevronDown className="h-3 w-3" />
+        {/* Mobile: single slim utility row. Promo links live in the burger menu
+            (MobileNav) + the hero CTA — no need to re-surface them here. */}
+        <div className="flex items-center justify-between gap-3 py-2 text-[11px] font-medium text-[color:var(--color-foreground)] md:hidden">
+          <span className="inline-flex items-center gap-1 text-[color:var(--color-muted)]">
+            Employer-verified
+            <IconChevronDown className="h-3 w-3" />
+          </span>
+          <div className="flex items-center gap-x-3">
+            <Link href="/orders" className="hover:underline">
+              Track order
+            </Link>
+            <span className="inline-flex items-center gap-1">
+              <span aria-hidden>🇬🇭</span>
+              EN / GHS
             </span>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <Link href="/orders" className="hover:underline">
-                Track order
-              </Link>
-              <Link href="/how-it-works" className="hover:underline">
-                Help
-              </Link>
-              <span className="inline-flex items-center gap-1">
-                <span aria-hidden>🇬🇭</span>
-                EN / GHS
-              </span>
-            </div>
           </div>
         </div>
 

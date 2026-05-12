@@ -26,45 +26,58 @@ export function FinancialSummaryStrip({ salaryGhs }: Props) {
     >
       {isAnonymous ? (
         <>
-          <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-[color:var(--color-accent)] md:flex">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
-              <path
-                d="M3 7h18v10H3zM3 10h18M7 14h4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-
           <div className="min-w-0 md:flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--color-accent)]">
-              Pay-Small-Small
+              Check eligibility · 30 seconds
             </p>
             <p className="mt-1 font-[family-name:var(--font-heading)] text-lg font-extrabold leading-tight text-white sm:text-xl">
-              See what you qualify for in seconds.
+              What&apos;s your monthly salary?
             </p>
             <p className="mt-1.5 text-[12px] leading-snug text-white/75 md:text-[13px]">
-              Tell us your monthly salary — we&apos;ll estimate your credit limit and which catalogue items fit your{" "}
-              {Math.round(DEDUCTION_CAP_RATE * 100)}% deduction cap. No credit check, no signup.
+              We&apos;ll show your credit limit ({Math.round(CREDIT_LIMIT_RATE * 100)}% of salary) and the items that
+              fit your {Math.round(DEDUCTION_CAP_RATE * 100)}% deduction cap. No credit check.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 md:shrink-0">
-            <Link
-              href="/eligibility"
-              className="inline-flex items-center justify-center rounded-xl bg-[color:var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--color-accent-hover)]"
-            >
-              Estimate my limit
-            </Link>
+          {/*
+            Server-side form: submitting reloads the home page with `?salary=…`,
+            which re-renders this strip into its credit-snapshot state. No JS needed.
+          */}
+          <form
+            method="get"
+            action="/"
+            className="flex flex-col gap-2 md:w-auto md:shrink-0"
+          >
+            <div className="flex gap-2">
+              <div className="relative flex-1 md:w-44 md:flex-none">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-bold uppercase tracking-wide text-white/55">
+                  GHS
+                </span>
+                <input
+                  name="salary"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  step={100}
+                  placeholder="6,500"
+                  aria-label="Monthly salary in GHS"
+                  className="w-full rounded-xl bg-white/10 py-2.5 pl-12 pr-3 text-sm font-semibold text-white outline-none ring-1 ring-inset ring-white/20 placeholder:text-white/45 focus:ring-2 focus:ring-[color:var(--color-accent)]"
+                />
+              </div>
+              <button
+                type="submit"
+                className="whitespace-nowrap rounded-xl bg-[color:var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--color-accent-hover)]"
+              >
+                Check
+              </button>
+            </div>
             <Link
               href="/how-it-works"
-              className="hidden text-[12px] font-semibold uppercase tracking-wide text-white/80 underline-offset-4 hover:underline sm:inline"
+              className="self-start text-[11px] font-semibold uppercase tracking-wide text-white/65 underline-offset-4 hover:text-white hover:underline"
             >
               How it works
             </Link>
-          </div>
+          </form>
         </>
       ) : (
         <>
