@@ -31,6 +31,7 @@ function buildHref(
     params.set("salary", String(salary));
   } else {
     params.delete("salary");
+    params.delete("eligible");
   }
   const qs = params.toString();
   return qs ? `${basePath}?${qs}` : basePath;
