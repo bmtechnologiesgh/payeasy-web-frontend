@@ -30,7 +30,7 @@ export function DealsStrip({ deals }: Props) {
           </Link>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-4 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x">
           {deals.map((p) => (
             <Link
               key={p.id}

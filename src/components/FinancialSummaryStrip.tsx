@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SalaryCheckForm, PAYEASY_CREDIT_SNAPSHOT_ID } from "@/components/SalaryCheckForm";
 import { formatGhs } from "@/lib/format";
 import {
   buildSalaryContext,
@@ -21,8 +22,9 @@ export function FinancialSummaryStrip({ salaryGhs }: Props) {
 
   return (
     <aside
+      id={PAYEASY_CREDIT_SNAPSHOT_ID}
       aria-label="Your PayEasy credit snapshot"
-      className="flex flex-col gap-4 rounded-2xl border border-[color:var(--color-primary)] bg-[color:var(--color-primary)] p-4 text-white shadow-sm sm:p-5 md:flex-row md:items-center md:gap-6 md:py-4"
+      className="scroll-mt-28 flex flex-col gap-4 rounded-2xl border border-[color:var(--color-primary)] bg-[color:var(--color-primary)] p-4 text-white shadow-sm sm:p-5 md:flex-row md:items-center md:gap-6 md:py-4"
     >
       {isAnonymous ? (
         <>
@@ -39,45 +41,7 @@ export function FinancialSummaryStrip({ salaryGhs }: Props) {
             </p>
           </div>
 
-          {/*
-            Server-side form: submitting reloads the home page with `?salary=…`,
-            which re-renders this strip into its credit-snapshot state. No JS needed.
-          */}
-          <form
-            method="get"
-            action="/"
-            className="flex flex-col gap-2 md:w-auto md:shrink-0"
-          >
-            <div className="flex gap-2">
-              <div className="relative flex-1 md:w-44 md:flex-none">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-bold uppercase tracking-wide text-white/55">
-                  GHS
-                </span>
-                <input
-                  name="salary"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  step={100}
-                  placeholder="6,500"
-                  aria-label="Monthly salary in GHS"
-                  className="w-full rounded-xl bg-white/10 py-2.5 pl-12 pr-3 text-sm font-semibold text-white outline-none ring-1 ring-inset ring-white/20 placeholder:text-white/45 focus:ring-2 focus:ring-[color:var(--color-accent)]"
-                />
-              </div>
-              <button
-                type="submit"
-                className="whitespace-nowrap rounded-xl bg-[color:var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--color-accent-hover)]"
-              >
-                Check
-              </button>
-            </div>
-            <Link
-              href="/how-it-works"
-              className="self-start text-[11px] font-semibold uppercase tracking-wide text-white/65 underline-offset-4 hover:text-white hover:underline"
-            >
-              How it works
-            </Link>
-          </form>
+          <SalaryCheckForm />
         </>
       ) : (
         <>

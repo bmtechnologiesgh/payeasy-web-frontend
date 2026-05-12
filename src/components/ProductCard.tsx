@@ -77,7 +77,7 @@ export function ProductCard({
           </span>
         ) : null}
         {evaluation.status === "approved" ? (
-          <span className="absolute right-2 top-2 z-[1] rounded-full bg-[color:var(--color-success-bg)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[color:var(--color-success)]">
+          <span className="absolute right-2 top-2 z-[1] rounded-md bg-[color:var(--color-success)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm ring-1 ring-inset ring-white/25">
             Eligible
           </span>
         ) : null}
