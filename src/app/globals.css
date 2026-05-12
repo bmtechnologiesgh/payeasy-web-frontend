@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/*
+  PayEasy aligned design system (see /payeasy-aligned-design-system (1).md in repo root).
+  Tokens map to:
+    Deep Petrol Green  #0F3D3E  (primary brand / trust)
+    Warm Gold Sand     #D9A441  (accent / premium CTA)
+    Soft Stone         #F5F3EF  (app background)
+    Charcoal           #1B1F23  (primary text)
+    Muted Green        #2E7D5A  (approved / success)
+    Warm Gold Dark     #9B6F1E  (pending / under review)
+    Burnt Clay         #B85042  (overdue / error)
+*/
+:root {
+  /* Brand */
+  --color-primary: #0F3D3E;
+  --color-primary-hover: #0B3031;
+  --color-primary-active: #082829;
+  --color-accent: #D9A441;
+  --color-accent-hover: #C89335;
+  --color-accent-active: #B9842B;
+  --color-accent-dark: #9B6F1E;
+
+  /* Surfaces */
+  --color-app: #F5F3EF;
+  --color-muted-bg: #EDEAE3;
+  --color-surface: #FFFFFF;
+  --color-foreground: #1B1F23;
+  --color-muted: rgba(27, 31, 35, 0.62);
+  --color-border: rgba(15, 61, 62, 0.08);
+  --color-border-strong: rgba(15, 61, 62, 0.18);
+  --color-input-border: rgba(15, 61, 62, 0.18);
+  --color-focus: rgba(217, 164, 65, 0.28);
+
+  /* Status (BNPL eligibility + payroll states) */
+  --color-success: #2E7D5A;
+  --color-success-bg: rgba(46, 125, 90, 0.10);
+  --color-warning: #9B6F1E;
+  --color-warning-bg: rgba(217, 164, 65, 0.12);
+  --color-danger: #B85042;
+  --color-danger-bg: rgba(184, 80, 66, 0.10);
+
+  /* Storefront-legacy aliases (deal/hot/stars). Kept so existing components compile. */
+  --color-sale: #B85042;
+  --color-hot: #9B6F1E;
+  --color-stars: #D9A441;
+  --color-carousel-border: rgba(15, 61, 62, 0.08);
+  --color-carousel-btn: #EDEAE3;
+  --color-hero-shell: #EDEAE3;
+}
+
+@theme inline {
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-app);
+  color: var(--color-foreground);
+  font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+}
