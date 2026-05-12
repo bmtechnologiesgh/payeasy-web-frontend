@@ -6,10 +6,7 @@ import type { FormEvent } from "react";
 
 export const PAYEASY_CREDIT_SNAPSHOT_ID = "payeasy-credit-snapshot";
 
-/**
- * Client GET navigation so we can append a hash and scroll to the credit strip
- * after salary check (native GET submit always lands at scrollY=0).
- */
+/** Client navigation from the home salary check into the unlocked catalogue. */
 export function SalaryCheckForm() {
   const router = useRouter();
 
@@ -18,19 +15,13 @@ export function SalaryCheckForm() {
     const fd = new FormData(e.currentTarget);
     const salaryField = fd.get("salary");
     const raw = typeof salaryField === "string" ? salaryField.trim() : "";
-    const qs = raw ? `salary=${encodeURIComponent(raw)}` : "";
-    const path = qs ? `/?${qs}#${PAYEASY_CREDIT_SNAPSHOT_ID}` : `/#${PAYEASY_CREDIT_SNAPSHOT_ID}`;
+    const params = new URLSearchParams();
+    if (raw) {
+      params.set("salary", raw);
+      params.set("eligible", "1");
+    }
 
-    router.push(path);
-
-    const scrollToStrip = () => {
-      document.getElementById(PAYEASY_CREDIT_SNAPSHOT_ID)?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    };
-
-    window.setTimeout(scrollToStrip, 150);
+    router.push(params.toString() ? `/catalog?${params.toString()}` : "/catalog");
   }
 
   return (

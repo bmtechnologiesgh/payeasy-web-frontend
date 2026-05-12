@@ -6,6 +6,7 @@ import { formatGhs } from "@/lib/format";
 type Props = {
   products: Product[];
   ctx: SalaryContext;
+  eligibleOnly?: boolean;
 };
 
 /**
@@ -14,7 +15,7 @@ type Props = {
  *  2. Salary set, some eligible → green "X products match your limit"
  *  3. Salary set, none eligible → muted "Try a lower band" prompt
  */
-export function EligibilityBanner({ products, ctx }: Props) {
+export function EligibilityBanner({ products, ctx, eligibleOnly = false }: Props) {
   if (ctx.salaryGhs == null) {
     return (
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-[color:var(--color-border-strong)] bg-white px-4 py-3 text-sm text-[color:var(--color-muted)]">
@@ -46,8 +47,17 @@ export function EligibilityBanner({ products, ctx }: Props) {
           ✓
         </span>
         <span className="flex-1">
-          <strong>{eligibleCount} of {products.length}</strong> match your{" "}
-          {formatGhs(ctx.creditLimitGhs)} credit limit and 30% deduction cap.
+          {eligibleOnly ? (
+            <>
+              Your <strong>{formatGhs(ctx.creditLimitGhs)}</strong> credit limit unlocks{" "}
+              <strong>{eligibleCount} products</strong> — here they are.
+            </>
+          ) : (
+            <>
+              <strong>{eligibleCount} of {products.length}</strong> match your{" "}
+              {formatGhs(ctx.creditLimitGhs)} credit limit and 30% deduction cap.
+            </>
+          )}
         </span>
         <span className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
           Eligible items shown first

@@ -149,6 +149,20 @@ export default async function ProductPage({
             service fee is already included in each plan total.
           </p>
 
+          {evaluation.minSalaryGhs != null ? (
+            <div className="mt-6 rounded-xl border border-[color:var(--color-border-strong)] bg-white px-4 py-3 text-sm text-[color:var(--color-foreground)] shadow-sm">
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-muted)]">
+                Minimum salary required
+              </p>
+              <p className="mt-1 font-[family-name:var(--font-heading)] text-xl font-bold">
+                {formatGhs(evaluation.minSalaryGhs)}/mo
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-[color:var(--color-muted)]">
+                Based on the longest available plan staying within PayEasy&apos;s 30% monthly deduction cap.
+              </p>
+            </div>
+          ) : null}
+
           <section aria-labelledby="plans-heading" className="mt-8">
             <div className="flex items-center justify-between">
               <h2

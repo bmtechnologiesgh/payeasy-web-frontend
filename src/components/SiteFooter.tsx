@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { FooterNewsletter } from "@/components/FooterNewsletter";
+import {
+  PAYEASY_EMPLOYER_EMAIL,
+  PAYEASY_SUPPORT_PHONE_DISPLAY,
+  PAYEASY_SUPPORT_PHONE_TEL,
+  PAYEASY_WHATSAPP_URL,
+} from "@/lib/contact";
 
 function FeatureBar() {
   const items = [
@@ -79,7 +85,20 @@ export function SiteFooter() {
               <p className="mt-2 text-sm text-[color:var(--color-muted)]">
                 Questions about a deduction or order status? Reach our employee desk Mon–Fri, 8am–6pm GMT.
               </p>
-              <p className="mt-3 text-lg font-semibold text-[color:var(--color-foreground)]">+233 XX XXX XXXX</p>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <a
+                  href={`tel:${PAYEASY_SUPPORT_PHONE_TEL}`}
+                  className="text-lg font-semibold text-[color:var(--color-foreground)] underline-offset-4 hover:underline"
+                >
+                  {PAYEASY_SUPPORT_PHONE_DISPLAY}
+                </a>
+                <a
+                  href={PAYEASY_WHATSAPP_URL}
+                  className="rounded-full bg-[color:var(--color-muted-bg)] px-3 py-1 text-xs font-semibold text-[color:var(--color-foreground)] hover:bg-[color:var(--color-app)]"
+                >
+                  WhatsApp
+                </a>
+              </div>
             </div>
             <div>
               <p className="flex items-center gap-2 font-semibold text-[color:var(--color-foreground)]">
@@ -88,9 +107,15 @@ export function SiteFooter() {
               <p className="mt-2 text-sm text-[color:var(--color-muted)]">
                 HR and finance teams can request a payroll integration walkthrough.
               </p>
-              <Link href="/employers" className="mt-3 inline-block text-sm font-semibold underline">
+              <Link href="/employers#employer-lead-form" className="mt-3 inline-block text-sm font-semibold underline">
                 Talk to our team
               </Link>
+              <a
+                href={`mailto:${PAYEASY_EMPLOYER_EMAIL}`}
+                className="mt-2 block text-xs text-[color:var(--color-muted)] underline-offset-4 hover:underline"
+              >
+                {PAYEASY_EMPLOYER_EMAIL}
+              </a>
             </div>
           </div>
 

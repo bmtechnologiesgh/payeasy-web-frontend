@@ -4,6 +4,7 @@ import { EligibilityBanner } from "@/components/EligibilityBanner";
 import { ProductGrid } from "@/components/ProductGrid";
 import { SalaryChipRow } from "@/components/SalaryChipRow";
 import { filterProducts } from "@/lib/catalog";
+import { formatGhs } from "@/lib/format";
 import {
   applyEligibility,
   buildSalaryContext,
@@ -36,19 +37,21 @@ export default async function CatalogPage({
 
   const salaryGhs = readSalaryFromSearchParams(sp.salary);
   const ctx = buildSalaryContext(salaryGhs);
+  const eligibleOnly = first(sp.eligible) === "1" && salaryGhs != null;
 
   const filtered = filterProducts({
     q,
     min: Number.isFinite(min) ? min : undefined,
     max: Number.isFinite(max) ? max : undefined,
   });
-  const products = applyEligibility(filtered, ctx, { payrollOnly });
+  const products = applyEligibility(filtered, ctx, { payrollOnly, eligibleOnly });
 
   const preserve: Record<string, string | undefined> = {
     q: q ?? undefined,
     min: Number.isFinite(min) ? String(min) : undefined,
     max: Number.isFinite(max) ? String(max) : undefined,
     payroll: payrollOnly ? "1" : undefined,
+    eligible: eligibleOnly ? "1" : undefined,
   };
 
   return (
@@ -58,7 +61,9 @@ export default async function CatalogPage({
           Full catalogue
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[color:var(--color-muted)]">
-          {q
+          {eligibleOnly && salaryGhs != null
+            ? `Your ${formatGhs(ctx.creditLimitGhs)} credit limit is filtering this view to products you can buy now.`
+            : q
             ? `Showing results for "${q}". Adjust the salary band or filters to refine.`
             : "Set your salary band to surface plans that fit your 30% deduction cap."}
         </p>
@@ -69,7 +74,7 @@ export default async function CatalogPage({
       </div>
 
       <div className="mb-6">
-        <EligibilityBanner products={products} ctx={ctx} />
+        <EligibilityBanner products={products} ctx={ctx} eligibleOnly={eligibleOnly} />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[260px_1fr] lg:items-start">
@@ -80,6 +85,7 @@ export default async function CatalogPage({
           q={q}
           salary={salaryGhs ?? undefined}
           payrollOnly={payrollOnly}
+          eligibleOnly={eligibleOnly}
         />
         <ProductGrid
           products={products}

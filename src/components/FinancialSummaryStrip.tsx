@@ -82,7 +82,7 @@ export function FinancialSummaryStrip({ salaryGhs }: Props) {
 
           <div className="flex items-center gap-2 md:shrink-0">
             <Link
-              href={`/catalog?salary=${ctx.salaryGhs}`}
+              href={`/catalog?salary=${ctx.salaryGhs}&eligible=1`}
               className="inline-flex items-center justify-center rounded-xl bg-[color:var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--color-accent-hover)]"
             >
               Browse eligible
