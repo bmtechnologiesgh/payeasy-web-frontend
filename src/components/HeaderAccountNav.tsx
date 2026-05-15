@@ -2,32 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconChevronDown, IconUser } from "@/components/marketplace/icons";
-import { clearAccessToken, getAccessToken, subscribeAuthChanged } from "@/lib/auth-token";
-import { getPayeasyJson, postPayeasyJsonAuth } from "@/lib/payeasy-api";
-
-type MePayload = {
-  user: {
-    first_name?: string | null;
-    last_name?: string | null;
-    full_name?: string | null;
-    email_verified_at?: string | null;
-    phone_verified_at?: string | null;
-  };
-};
-
-function displayFirstName(user: MePayload["user"]): string {
-  const raw = user.first_name?.trim();
-  if (raw) return raw;
-  const full = user.full_name?.trim();
-  if (full) return full.split(/\s+/)[0] ?? "there";
-  return "there";
-}
-
-function isVerified(user: MePayload["user"]): boolean {
-  return Boolean(user.email_verified_at || user.phone_verified_at);
-}
+import { clearAccessToken, getAccessToken } from "@/lib/auth-token";
+import { useEmployeeSession } from "@/lib/employee-session";
+import { postPayeasyJsonAuth } from "@/lib/payeasy-api";
 
 type Props = {
   /** Slightly smaller icon (mobile header row next to cart) */
@@ -36,45 +15,10 @@ type Props = {
 
 export function HeaderAccountNav({ compact = false }: Props) {
   const router = useRouter();
-  const [token, setToken] = useState<string | null>(null);
-  const [greeting, setGreeting] = useState<string | null>(null);
-  const [verified, setVerified] = useState(false);
+  const { token, greeting, verified } = useEmployeeSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
-
-  const loadUser = useCallback(async () => {
-    const t = getAccessToken();
-    setToken(t);
-    if (!t) {
-      setGreeting(null);
-      setVerified(false);
-      return;
-    }
-    const res = await getPayeasyJson<MePayload>("/me", t);
-    if (res.ok && res.status === 401) {
-      clearAccessToken();
-      setToken(null);
-      setGreeting(null);
-      setVerified(false);
-      return;
-    }
-    if (!res.ok || !res.json.success || !res.json.data?.user) {
-      setGreeting(null);
-      setVerified(false);
-      return;
-    }
-    const u = res.json.data.user;
-    setGreeting(displayFirstName(u));
-    setVerified(isVerified(u));
-  }, []);
-
-  useEffect(() => {
-    void loadUser();
-    return subscribeAuthChanged(() => {
-      void loadUser();
-    });
-  }, [loadUser]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -100,8 +44,6 @@ export function HeaderAccountNav({ compact = false }: Props) {
     clearAccessToken();
     setSigningOut(false);
     setMenuOpen(false);
-    setGreeting(null);
-    setVerified(false);
     router.refresh();
   }
 

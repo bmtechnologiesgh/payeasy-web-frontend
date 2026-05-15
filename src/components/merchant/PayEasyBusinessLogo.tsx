@@ -3,14 +3,18 @@ import Link from "next/link";
 type Props = {
   size?: "sm" | "md";
   href?: string;
-  /** High-contrast treatment for dark credit / hero backgrounds. */
-  variant?: "default" | "onHero";
+  /** High-contrast treatment for dark primary backgrounds. */
+  variant?: "default" | "onPrimary";
 };
 
-export function PayEasyLogo({ size = "md", href = "/", variant = "default" }: Props) {
+export function PayEasyBusinessLogo({
+  size = "md",
+  href = "/dashboard",
+  variant = "default",
+}: Props) {
   const textSize = size === "sm" ? "text-sm" : "text-lg sm:text-xl";
   const brandClass =
-    variant === "onHero" ? "text-white" : "text-[color:var(--color-foreground)]";
+    variant === "onPrimary" ? "text-white" : "text-[color:var(--color-foreground)]";
 
   return (
     <Link href={href} className="flex min-w-0 items-center gap-2 text-left">
@@ -25,6 +29,13 @@ export function PayEasyLogo({ size = "md", href = "/", variant = "default" }: Pr
           className={`font-[family-name:var(--font-heading)] font-extrabold tracking-tight ${textSize} ${brandClass}`}
         >
           PayEasy
+        </span>
+        <span
+          className={`ml-1.5 text-[10px] font-bold uppercase tracking-[0.14em] ${
+            variant === "onPrimary" ? "text-white/70" : "text-[color:var(--color-muted)]"
+          }`}
+        >
+          Business
         </span>
       </span>
     </Link>

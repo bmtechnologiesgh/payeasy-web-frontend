@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { PasswordField } from "@/components/auth/PasswordField";
 import { setAccessToken } from "@/lib/auth-token";
 import { postPayeasyJson } from "@/lib/payeasy-api";
 
@@ -17,6 +18,7 @@ export function SignInForm() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
+  const [resetNotice, setResetNotice] = useState<string | null>(null);
   const [showCreatePath, setShowCreatePath] = useState(false);
 
   useEffect(() => {
@@ -24,6 +26,9 @@ export function SignInForm() {
     if (q) setContact(q);
     if (searchParams.get("registered") === "1") {
       setBanner("Your account is ready. Sign in with the password you chose.");
+    }
+    if (searchParams.get("reset") === "1") {
+      setResetNotice("Your password was updated. Sign in with your new password.");
     }
   }, [searchParams]);
 
@@ -39,6 +44,7 @@ export function SignInForm() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBanner(null);
+    setResetNotice(null);
     setShowCreatePath(false);
     const trimmed = contact.trim();
     if (!trimmed || !password) return;
@@ -106,6 +112,15 @@ export function SignInForm() {
         </div>
       ) : null}
 
+      {resetNotice ? (
+        <div
+          role="status"
+          className="mt-6 rounded-xl border border-[color:var(--color-border-strong)] bg-[color:var(--color-surface)] px-4 py-3 text-sm text-[color:var(--color-foreground)]"
+        >
+          {resetNotice}
+        </div>
+      ) : null}
+
       {showCreatePath ? (
         <div className="mt-4 rounded-xl border border-[color:var(--color-border-strong)] bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-[color:var(--color-foreground)]">New to PayEasy?</p>
@@ -152,17 +167,26 @@ export function SignInForm() {
           />
         </div>
         <div>
-          <label htmlFor="signin-password" className="block text-xs font-bold uppercase tracking-wide text-[color:var(--color-muted)]">
-            Password
-          </label>
-          <input
+          <div className="flex items-center justify-between gap-3">
+            <span className="block text-xs font-bold uppercase tracking-wide text-[color:var(--color-muted)]">Password</span>
+            <Link
+              href={
+                contact.trim()
+                  ? `/forgot-password?contact=${encodeURIComponent(contact.trim())}`
+                  : "/forgot-password"
+              }
+              className="text-xs font-semibold text-[color:var(--color-primary)] underline-offset-2 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+          <PasswordField
             id="signin-password"
             name="password"
-            type="password"
+            aria-label="Password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-[color:var(--color-input-border)] bg-white px-4 py-3 text-[color:var(--color-foreground)] outline-none ring-[color:var(--color-focus)] focus:ring-2"
+            onChange={setPassword}
             required
           />
         </div>

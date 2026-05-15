@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { OtpInput } from "@/components/auth/OtpInput";
+import { PasswordField } from "@/components/auth/PasswordField";
 import { setAccessToken } from "@/lib/auth-token";
-import { postPayeasyJson } from "@/lib/payeasy-api";
+import { PASSWORD_MIN_LENGTH, postPayeasyJson } from "@/lib/payeasy-api";
 
 type Channel = "email" | "phone";
 
@@ -22,6 +24,7 @@ export function SignUpForm() {
   const [masked, setMasked] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [otherName, setOtherName] = useState("");
@@ -114,6 +117,22 @@ export function SignUpForm() {
     if (!attemptUuid) return;
     setError(null);
     setMessage(null);
+
+    if (code.trim().length !== 6) {
+      setError("Enter the full 6-digit code.");
+      return;
+    }
+
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      setError(`Password must be at least ${PASSWORD_MIN_LENGTH} characters.`);
+      return;
+    }
+
+    if (password !== passwordConfirmation) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setBusy(true);
 
     const body = {
@@ -265,6 +284,7 @@ export function SignUpForm() {
                 setMasked(null);
                 setCode("");
                 setPassword("");
+                setPasswordConfirmation("");
                 setMessage(null);
                 setError(null);
               }}
@@ -273,37 +293,28 @@ export function SignUpForm() {
             </button>
           </p>
 
-          <div>
-            <label htmlFor="su-code" className="block text-xs font-bold uppercase tracking-wide text-[color:var(--color-muted)]">
-              6-digit code
-            </label>
-            <input
-              id="su-code"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={6}
-              autoComplete="one-time-code"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              className="mt-2 w-full rounded-xl border border-[color:var(--color-input-border)] bg-white px-4 py-3 text-center text-lg tracking-[0.3em] text-[color:var(--color-foreground)] outline-none ring-[color:var(--color-focus)] focus:ring-2"
-              required
-            />
-          </div>
+          <OtpInput id="su-code" label="6-digit code" value={code} onChange={setCode} disabled={busy} />
 
-          <div>
-            <label htmlFor="su-password" className="block text-xs font-bold uppercase tracking-wide text-[color:var(--color-muted)]">
-              Password
-            </label>
-            <input
-              id="su-password"
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-[color:var(--color-input-border)] bg-white px-4 py-3 text-[color:var(--color-foreground)] outline-none ring-[color:var(--color-focus)] focus:ring-2"
-              required
-            />
-          </div>
+          <PasswordField
+            id="su-password"
+            label="Password"
+            autoComplete="new-password"
+            required
+            minLength={PASSWORD_MIN_LENGTH}
+            value={password}
+            onChange={setPassword}
+            hint={`At least ${PASSWORD_MIN_LENGTH} characters.`}
+          />
+
+          <PasswordField
+            id="su-password2"
+            label="Confirm password"
+            autoComplete="new-password"
+            required
+            minLength={PASSWORD_MIN_LENGTH}
+            value={passwordConfirmation}
+            onChange={setPasswordConfirmation}
+          />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>

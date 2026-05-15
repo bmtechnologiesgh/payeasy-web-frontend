@@ -2,11 +2,18 @@
  * Base URL for the PayEasy API (include `/api` path, e.g. `http://127.0.0.1:8000/api`).
  */
 export function getPayeasyApiBaseUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_PAYEASY_API_URL?.trim();
+  const raw =
+    process.env.NEXT_PUBLIC_PAYEASY_API_URL?.trim() ||
+    process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
   if (raw) {
     return raw.replace(/\/$/, "");
   }
   return "http://127.0.0.1:8000/api";
+}
+
+/** Alias used by merchant / employer / ops API helpers. */
+export function getApiBaseUrl(): string {
+  return getPayeasyApiBaseUrl();
 }
 
 export type ApiEnvelope<T> = {
@@ -17,26 +24,51 @@ export type ApiEnvelope<T> = {
   meta?: { errorCode?: string | null };
 };
 
+/** Minimum password length enforced by the API (`Password::defaults()`). */
+export const PASSWORD_MIN_LENGTH = 8;
+
+/**
+ * First human-readable validation message from an API envelope, if any.
+ */
+export function firstValidationError(json: ApiEnvelope<unknown>): string | null {
+  if (!json.errors) {
+    return null;
+  }
+
+  for (const messages of Object.values(json.errors)) {
+    if (messages?.[0]) {
+      return messages[0];
+    }
+  }
+
+  return null;
+}
+
 export async function postPayeasyJson<TBody extends object, TData = unknown>(
   path: string,
   body: TBody,
 ): Promise<{ ok: true; status: number; json: ApiEnvelope<TData> } | { ok: false; status: number; text: string }> {
   const url = `${getPayeasyApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-  const text = await res.text();
   try {
-    const json = JSON.parse(text) as ApiEnvelope<TData>;
-    return { ok: true, status: res.status, json };
-  } catch {
-    return { ok: false, status: res.status, text };
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text) as ApiEnvelope<TData>;
+      return { ok: true, status: res.status, json };
+    } catch {
+      return { ok: false, status: res.status, text };
+    }
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    return { ok: false, status: 0, text: message };
   }
 }
 
@@ -45,20 +77,25 @@ export async function getPayeasyJson<TData = unknown>(
   token: string,
 ): Promise<{ ok: true; status: number; json: ApiEnvelope<TData> } | { ok: false; status: number; text: string }> {
   const url = `${getPayeasyApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
-  const res = await fetch(url, {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const text = await res.text();
   try {
-    const json = JSON.parse(text) as ApiEnvelope<TData>;
-    return { ok: true, status: res.status, json };
-  } catch {
-    return { ok: false, status: res.status, text };
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text) as ApiEnvelope<TData>;
+      return { ok: true, status: res.status, json };
+    } catch {
+      return { ok: false, status: res.status, text };
+    }
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    return { ok: false, status: 0, text: message };
   }
 }
 
@@ -68,21 +105,59 @@ export async function postPayeasyJsonAuth<TBody extends object | undefined, TDat
   body?: TBody,
 ): Promise<{ ok: true; status: number; json: ApiEnvelope<TData> } | { ok: false; status: number; text: string }> {
   const url = `${getPayeasyApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-
-  const text = await res.text();
   try {
-    const json = JSON.parse(text) as ApiEnvelope<TData>;
-    return { ok: true, status: res.status, json };
-  } catch {
-    return { ok: false, status: res.status, text };
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text) as ApiEnvelope<TData>;
+      return { ok: true, status: res.status, json };
+    } catch {
+      return { ok: false, status: res.status, text };
+    }
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    return { ok: false, status: 0, text: message };
   }
 }
+
+export async function patchPayeasyJson<TBody extends object, TData = unknown>(
+  path: string,
+  body: TBody,
+  token: string,
+): Promise<{ ok: true; status: number; json: ApiEnvelope<TData> } | { ok: false; status: number; text: string }> {
+  const url = `${getPayeasyApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  try {
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text) as ApiEnvelope<TData>;
+      return { ok: true, status: res.status, json };
+    } catch {
+      return { ok: false, status: res.status, text };
+    }
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    return { ok: false, status: 0, text: message };
+  }
+}
+
+/** @deprecated Use `postPayeasyJsonAuth(path, token, body)` — kept for grep compatibility with older apps. */
+export const postPayeasyJsonWithAuth = postPayeasyJsonAuth;

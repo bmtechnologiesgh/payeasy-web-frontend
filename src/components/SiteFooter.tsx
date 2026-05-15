@@ -6,6 +6,12 @@ import {
   PAYEASY_SUPPORT_PHONE_TEL,
   PAYEASY_WHATSAPP_URL,
 } from "@/lib/contact";
+import {
+  merchantLoginHref,
+  merchantPortalHref,
+  merchantRegisterHref,
+} from "@/lib/merchant-portal";
+import { portalHref } from "@/lib/portal-path";
 
 function FeatureBar() {
   const items = [
@@ -130,7 +136,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-5">
           <div>
             <p className="flex flex-wrap items-center gap-2 font-[family-name:var(--font-heading)] text-xl font-extrabold">
               PayEasy
@@ -213,8 +219,46 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/employers" className="hover:text-[color:var(--color-foreground)] hover:underline">
+                <Link href={portalHref("employer", "/login")} className="hover:text-[color:var(--color-foreground)] hover:underline">
                   Employer portal
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-semibold text-[color:var(--color-foreground)]">Businesses</p>
+            <ul className="mt-4 space-y-2 text-sm text-[color:var(--color-muted)]">
+              <li>
+                <Link
+                  href={merchantRegisterHref()}
+                  className="hover:text-[color:var(--color-foreground)] hover:underline"
+                >
+                  Sell on PayEasy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={merchantRegisterHref()}
+                  className="hover:text-[color:var(--color-foreground)] hover:underline"
+                >
+                  Register your business
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={merchantLoginHref()}
+                  className="hover:text-[color:var(--color-foreground)] hover:underline"
+                >
+                  Business sign in
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={merchantPortalHref()}
+                  className="hover:text-[color:var(--color-foreground)] hover:underline"
+                >
+                  PayEasy for Business
                 </Link>
               </li>
             </ul>
