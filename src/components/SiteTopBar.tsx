@@ -21,6 +21,12 @@ export function SiteTopBar() {
             <IconChevronDown className="h-3 w-3" />
           </span>
           <div className="flex items-center gap-x-3">
+            <Link href="/sign-in" className="hover:underline">
+              Sign in
+            </Link>
+            <Link href="/sign-up" className="hover:underline">
+              Create account
+            </Link>
             <Link href="/orders" className="hover:underline">
               Track order
             </Link>
@@ -52,6 +58,12 @@ export function SiteTopBar() {
               Employer-verified
               <IconChevronDown className="h-3.5 w-3.5 text-[color:var(--color-muted)]" />
             </span>
+            <Link className="font-medium text-[color:var(--color-foreground)] hover:underline" href="/sign-in">
+              Sign in
+            </Link>
+            <Link className="font-medium text-[color:var(--color-foreground)] hover:underline" href="/sign-up">
+              Create account
+            </Link>
             <Link className="font-medium text-[color:var(--color-foreground)] hover:underline" href="/orders">
               Track order
             </Link>

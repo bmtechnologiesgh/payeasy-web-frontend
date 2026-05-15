@@ -284,7 +284,7 @@ export function SiteFooter() {
         </div>
 
         <p className="pb-10 text-center text-xs text-[color:var(--color-muted)]">
-          Copyright © {year} PayEasy. All rights reserved.
+          Copyright © {year} All rights reserved. BM Technologies
         </p>
       </div>
     </footer>

@@ -50,8 +50,11 @@ export function MobileNav({ categories }: Props) {
             </p>
             <ul className="space-y-0.5">
               {[
+                { href: "/sign-in", label: "Sign in" },
+                { href: "/sign-up", label: "Create account" },
                 { href: "/eligibility", label: "Check eligibility" },
                 { href: "/how-it-works", label: "How it works" },
+                { href: "/wishlist", label: "Wishlist" },
                 { href: "/orders", label: "My orders" },
                 { href: "/employers", label: "For employers" },
               ].map((item) => (
