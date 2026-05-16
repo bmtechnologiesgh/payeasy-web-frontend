@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/ProductImage";
 import { notFound } from "next/navigation";
 import { getProductById, type TenureKey } from "@/lib/catalog";
 import { formatGhs } from "@/lib/format";
@@ -19,7 +19,7 @@ export async function generateMetadata({
   params: Promise<{ id: string; months: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
   return {
     title: product ? `Confirm order · ${product.name}` : "Confirm order",
   };
@@ -36,8 +36,10 @@ export default async function CheckoutPage({
 }) {
   const { id, months } = await params;
   const sp = (await searchParams) ?? {};
-  const product = getProductById(id);
-  if (!product) notFound();
+  const product = await getProductById(id);
+  if (!product) {
+    notFound();
+  }
 
   const tenure = months as TenureKey;
   if (!VALID_TENURES.includes(tenure)) notFound();
@@ -87,8 +89,8 @@ export default async function CheckoutPage({
       </header>
 
       <article className="flex items-center gap-4 rounded-2xl border border-[color:var(--color-border)] bg-white p-4 shadow-sm">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[color:var(--color-muted-bg)]">
-          <Image src={product.image} alt={product.name} fill className="object-contain p-2" unoptimized />
+        <div className="product-media relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
+          <ProductImage src={product.image} alt={product.name} category={product.category} className="object-contain p-2" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-[color:var(--color-muted)]">
@@ -195,9 +197,6 @@ export default async function CheckoutPage({
         >
           Place order →
         </button>
-        <p className="mt-2 text-center text-[11px] text-[color:var(--color-muted)]">
-          🔒 Static demo — no order is placed. Production builds wire this to the PayEasy API.
-        </p>
       </div>
     </div>
   );

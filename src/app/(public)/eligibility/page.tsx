@@ -70,9 +70,6 @@ export default async function EligibilityPage({
             Estimate
           </button>
         </div>
-        <p className="mt-2 text-[11px] text-[color:var(--color-muted)]">
-          Static demo — your salary stays in the URL only. Production verifies via your employer&apos;s payroll.
-        </p>
       </form>
 
       {salaryGhs != null ? (
@@ -130,7 +127,7 @@ export default async function EligibilityPage({
       </section>
 
       <p className="mt-8 text-center text-xs text-[color:var(--color-muted)]">
-        This is a static estimator. The production flow verifies salary via your employer&apos;s payroll record.
+        Estimates use the salary you enter above. After sign-in, PayEasy verifies eligibility via your employer&apos;s payroll record.
       </p>
     </div>
   );

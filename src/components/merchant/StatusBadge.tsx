@@ -13,7 +13,7 @@ const toneClasses: Record<StatusTone, string> = {
 export function merchantStatusTone(status: string | null | undefined): StatusTone {
   const normalized = (status ?? "not_started").toLowerCase();
 
-  if (["approved", "active", "verified", "live"].includes(normalized)) {
+  if (["approved", "active", "verified", "live", "published"].includes(normalized)) {
     return "success";
   }
   if (["pending", "under_review", "review", "submitted"].includes(normalized)) {

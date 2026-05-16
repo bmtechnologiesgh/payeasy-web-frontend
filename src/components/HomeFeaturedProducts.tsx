@@ -20,7 +20,7 @@ export function HomeFeaturedProducts({ products, salaryCtx }: Props) {
       <div className="rounded-2xl border border-[color:var(--color-border)] bg-white p-4 shadow-sm">
         <HorizontalCarousel ariaLabel="Featured products carousel">
           {products.map((p) => (
-            <ProductCard key={p.id} product={p} variant="carousel" showRating salaryCtx={salaryCtx} />
+            <ProductCard key={p.id} product={p} variant="carousel" salaryCtx={salaryCtx} />
           ))}
         </HorizontalCarousel>
       </div>

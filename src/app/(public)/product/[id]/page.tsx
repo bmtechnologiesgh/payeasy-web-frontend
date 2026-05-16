@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductStickyPurchaseBar } from "@/components/cart/ProductStickyPurchaseBar";
+import { ProductDescriptionCollapsible } from "@/components/ProductDescriptionCollapsible";
+import { ProductGallery } from "@/components/ProductGallery";
+import { ProductImage } from "@/components/ProductImage";
 import { notFound } from "next/navigation";
-import { getProductById, getProducts, type TenureKey } from "@/lib/catalog";
+import { getProductById, getProducts, type Product, type TenureKey } from "@/lib/catalog";
 import { formatGhs } from "@/lib/format";
 import { slugify } from "@/lib/slug";
 import {
@@ -14,9 +17,7 @@ import {
   withSalaryParam,
 } from "@/lib/eligibility";
 
-export async function generateStaticParams() {
-  return getProducts().map((p) => ({ id: p.id }));
-}
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -24,8 +25,10 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const product = getProductById(id);
-  if (!product) return { title: "Product" };
+  const product = await getProductById(id);
+  if (!product) {
+    return { title: "Product" };
+  }
   return { title: product.name };
 }
 
@@ -33,6 +36,15 @@ type SearchParams = Record<string, string | string[] | undefined>;
 
 function pickStringParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function brandModelLine(product: Product): string | null {
+  const brand = product.brand?.trim() ?? "";
+  const model = product.model?.trim() ?? "";
+  if (brand && model) {
+    return `${brand} · ${model}`;
+  }
+  return brand || model || null;
 }
 
 export default async function ProductPage({
@@ -44,8 +56,10 @@ export default async function ProductPage({
 }) {
   const { id } = await params;
   const sp = (await searchParams) ?? {};
-  const product = getProductById(id);
-  if (!product) notFound();
+  const product = await getProductById(id);
+  if (!product) {
+    notFound();
+  }
 
   const salaryGhs = readSalaryFromSearchParams(sp.salary);
   const ctx = buildSalaryContext(salaryGhs);
@@ -61,7 +75,8 @@ export default async function ProductPage({
     evaluation.plans.find((p) => p.tenure === selectedTenure) ?? evaluation.plans[0];
 
   const catSlug = slugify(product.category);
-  const related = getProducts()
+  const allProducts = await getProducts();
+  const related = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
@@ -72,13 +87,12 @@ export default async function ProductPage({
     return `/product/${product.id}?${params.toString()}`;
   };
 
-  const checkoutHref = `/checkout/${product.id}/${selectedTenure}${
-    salaryGhs != null ? `?salary=${salaryGhs}` : ""
-  }`;
+  const brandModel = brandModelLine(product);
+  const descriptionText = product.description?.trim() ?? "";
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-8 pb-32 sm:px-6 md:pb-8">
-      <nav className="mb-6 text-sm text-[color:var(--color-muted)]">
+    <div className="mx-auto max-w-[1280px] px-4 py-6 pb-32 sm:px-6 sm:py-8 md:pb-8">
+      <nav className="mb-4 text-sm text-[color:var(--color-muted)] sm:mb-6">
         <Link href={withSalaryParam("/", salaryGhs)} className="hover:text-[color:var(--color-primary)]">
           Home
         </Link>
@@ -97,19 +111,16 @@ export default async function ProductPage({
         <span className="text-[color:var(--color-foreground)]">{product.name}</span>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-        <div className="rounded-2xl border border-[color:var(--color-border)] bg-white p-6 shadow-sm">
-          <div className="relative mx-auto aspect-square max-w-[480px] bg-[color:var(--color-app)]">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              className="object-contain p-6"
-              unoptimized
-            />
-          </div>
-          <ul className="mt-6 grid grid-cols-2 gap-3 text-xs text-[color:var(--color-muted)]">
+      <div className="grid gap-6 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+        <div className="overflow-hidden rounded-2xl border border-[color:var(--color-border)] bg-white p-4 shadow-sm sm:p-6">
+          <ProductGallery
+            images={product.images}
+            fallback={product.image}
+            alt={product.name}
+            category={product.category}
+            priority
+          />
+          <ul className="mt-4 grid grid-cols-2 gap-2 text-xs text-[color:var(--color-muted)] sm:mt-6 sm:gap-3">
             <li className="rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-muted-bg)] px-3 py-2">
               <span className="block text-[10px] font-bold uppercase tracking-wide text-[color:var(--color-foreground)]">
                 Payroll-deducted
@@ -141,10 +152,20 @@ export default async function ProductPage({
           <p className="text-[11px] font-semibold uppercase tracking-wide text-[color:var(--color-muted)]">
             {product.category}
           </p>
-          <h1 className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-bold text-[color:var(--color-foreground)]">
+          <h1 className="mt-2 font-[family-name:var(--font-heading)] text-2xl font-bold leading-tight text-[color:var(--color-foreground)] sm:text-3xl">
             {product.name}
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-[color:var(--color-muted)]">
+          {brandModel ? (
+            <p className="mt-1 text-sm font-medium text-[color:var(--color-muted)]">{brandModel}</p>
+          ) : null}
+
+          {descriptionText ? (
+            <ProductDescriptionCollapsible description={descriptionText} className="mt-4" />
+          ) : null}
+
+          <p
+            className={`text-sm leading-relaxed text-[color:var(--color-muted)] ${descriptionText ? "mt-4" : "mt-3"}`}
+          >
             Pick a payroll-friendly repayment plan. The total payable is shown before you commit — the PayEasy
             service fee is already included in each plan total.
           </p>
@@ -317,37 +338,19 @@ export default async function ProductPage({
             🚚 Delivery to your registered address within 72 hours of order confirmation.
           </p>
 
-          <p className="mt-4 text-xs text-[color:var(--color-muted)]">
-            Illustrative catalogue only — checkout, eligibility, and payroll deductions are not wired up in this
-            static demo.
-          </p>
         </div>
       </div>
 
       {selectedPlan ? (
-        <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] z-30 border-t border-[color:var(--color-border)] bg-white/95 px-4 py-3 backdrop-blur md:bottom-6 md:left-auto md:right-6 md:rounded-2xl md:border md:border-[color:var(--color-border-strong)] md:px-6 md:py-4 md:shadow-lg">
-          <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 md:max-w-none">
-            <div>
-              <p className="text-lg font-bold text-[color:var(--color-foreground)]">
-                {formatGhs(Math.round(selectedPlan.monthly))} / mo
-              </p>
-              <p className="text-[11px] text-[color:var(--color-muted)]">
-                × {selectedPlan.months} months · total {formatGhs(Math.round(selectedPlan.total))}
-              </p>
-            </div>
-            <Link
-              href={checkoutHref}
-              aria-disabled={evaluation.status === "locked"}
-              className={`inline-flex h-12 items-center justify-center rounded-xl px-5 text-sm font-semibold transition ${
-                evaluation.status === "locked"
-                  ? "bg-[color:var(--color-muted-bg)] text-[color:var(--color-muted)] pointer-events-none"
-                  : "bg-[color:var(--color-primary)] text-white hover:bg-[color:var(--color-primary-hover)]"
-              }`}
-            >
-              {evaluation.status === "locked" ? "Not eligible" : "Continue →"}
-            </Link>
-          </div>
-        </div>
+        <ProductStickyPurchaseBar
+          product={product}
+          tenure={selectedTenure}
+          monthly={selectedPlan.monthly}
+          months={selectedPlan.months}
+          total={selectedPlan.total}
+          salaryGhs={salaryGhs}
+          locked={evaluation.status === "locked"}
+        />
       ) : null}
 
       {related.length ? (
@@ -368,13 +371,12 @@ export default async function ProductPage({
                   href={withSalaryParam(`/product/${p.id}`, salaryGhs)}
                   className="rounded-xl border border-[color:var(--color-border)] bg-white p-3 text-sm font-semibold shadow-sm hover:border-[color:var(--color-primary)]/30"
                 >
-                  <div className="relative mb-2 aspect-square bg-[color:var(--color-app)]">
-                    <Image
+                  <div className="product-media relative mb-2 aspect-square">
+                    <ProductImage
                       src={p.image}
                       alt={p.name}
-                      fill
+                      category={p.category}
                       className="object-contain p-2"
-                      unoptimized
                     />
                   </div>
                   <span className="line-clamp-2">{p.name}</span>

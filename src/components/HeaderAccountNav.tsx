@@ -70,7 +70,11 @@ export function HeaderAccountNav({ compact = false }: Props) {
         aria-expanded={menuOpen}
         aria-haspopup="true"
         onClick={() => setMenuOpen((o) => !o)}
-        className="flex max-w-[11rem] min-w-0 items-center gap-1.5 rounded-lg px-1 py-1 text-left text-[color:var(--color-foreground)] transition hover:bg-[color:var(--color-muted-bg)] sm:max-w-none sm:gap-2 sm:px-2 sm:py-1.5"
+        className={`flex min-w-0 items-center rounded-lg px-1 py-1 text-left text-[color:var(--color-foreground)] transition hover:bg-[color:var(--color-muted-bg)] ${
+          compact
+            ? "max-w-none gap-0"
+            : "max-w-[11rem] gap-1.5 sm:max-w-none sm:gap-2 sm:px-2 sm:py-1.5"
+        }`}
       >
         <span className="relative flex h-8 w-8 shrink-0 items-center justify-center sm:h-9 sm:w-9">
           <IconUser className={iconClass} />
@@ -84,15 +88,21 @@ export function HeaderAccountNav({ compact = false }: Props) {
             </span>
           ) : null}
         </span>
-        <span className="min-w-0 flex flex-col items-start leading-tight">
-          <span className="max-w-[5.5rem] truncate text-[11px] font-medium text-[color:var(--color-muted)] sm:max-w-[10rem]">
-            Hi, {greeting}
+        {compact ? (
+          <span className="sr-only">
+            Hi, {greeting}, Account
           </span>
-          <span className="mt-0.5 flex items-center gap-0.5">
-            <span className="text-[10px] font-bold text-[color:var(--color-foreground)] sm:text-[11px]">Account</span>
-            <IconChevronDown className="h-3 w-3 shrink-0 text-[color:var(--color-muted)]" />
+        ) : (
+          <span className="min-w-0 flex flex-col items-start leading-tight">
+            <span className="max-w-[5.5rem] truncate text-[11px] font-medium text-[color:var(--color-muted)] sm:max-w-[10rem]">
+              Hi, {greeting}
+            </span>
+            <span className="mt-0.5 flex items-center gap-0.5">
+              <span className="text-[10px] font-bold text-[color:var(--color-foreground)] sm:text-[11px]">Account</span>
+              <IconChevronDown className="h-3 w-3 shrink-0 text-[color:var(--color-muted)]" />
+            </span>
           </span>
-        </span>
+        )}
       </button>
 
       {menuOpen ? (

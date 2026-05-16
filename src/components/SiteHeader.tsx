@@ -2,10 +2,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import type { CategorySummary } from "@/lib/catalog";
+import { CartIconLink } from "@/components/cart/CartIconLink";
 import { HeaderAccountNav } from "@/components/HeaderAccountNav";
 import { MobileNav } from "@/components/MobileNav";
 import {
-  IconCart,
   IconHeart,
   IconPackage,
 } from "@/components/marketplace/icons";
@@ -44,7 +44,7 @@ export function SiteHeader({ categories }: Props) {
       <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 lg:grid-cols-[minmax(0,auto)_minmax(0,1fr)_minmax(0,auto)] lg:items-center lg:gap-x-4 lg:gap-y-0 xl:gap-x-6">
         {/* Row 1 mobile / Col 1 desktop: menu + brand */}
         <div className="flex min-w-0 items-center justify-between gap-2 lg:justify-start lg:gap-3">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden sm:gap-3 lg:flex-none">
             <MobileNav categories={categories} />
             <PayEasyLogo />
           </div>
@@ -61,9 +61,7 @@ export function SiteHeader({ categories }: Props) {
             <HeaderIconLink href="/orders" label="Orders">
               <IconPackage className="h-5 w-5 sm:h-6 sm:w-6" />
             </HeaderIconLink>
-            <HeaderIconLink href="/catalog" label="Cart">
-              <IconCart className="h-5 w-5 sm:h-6 sm:w-6" />
-            </HeaderIconLink>
+            <CartIconLink compact />
           </nav>
         </div>
 
@@ -93,9 +91,7 @@ export function SiteHeader({ categories }: Props) {
           <HeaderIconLink href="/orders" label="Orders">
             <IconPackage className="h-6 w-6" />
           </HeaderIconLink>
-          <HeaderIconLink href="/catalog" label="Cart">
-            <IconCart className="h-6 w-6" />
-          </HeaderIconLink>
+          <CartIconLink />
         </nav>
       </div>
     </header>

@@ -7,8 +7,8 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { SalaryChipRow } from "@/components/SalaryChipRow";
 import {
   filterProducts,
-  getCategories,
   getCategoryBySlug,
+  getProducts,
 } from "@/lib/catalog";
 import { formatGhs } from "@/lib/format";
 import {
@@ -18,15 +18,15 @@ import {
   withSalaryParam,
 } from "@/lib/eligibility";
 
+export const revalidate = 60;
+
 type SearchParams = Record<string, string | string[] | undefined>;
 
 function first(param: string | string[] | undefined): string | undefined {
-  if (Array.isArray(param)) return param[0];
+  if (Array.isArray(param)) {
+    return param[0];
+  }
   return param;
-}
-
-export async function generateStaticParams() {
-  return getCategories().map((c) => ({ category: c.slug }));
 }
 
 export async function generateMetadata({
@@ -35,8 +35,10 @@ export async function generateMetadata({
   params: Promise<{ category: string }>;
 }): Promise<Metadata> {
   const { category: slug } = await params;
-  const cat = getCategoryBySlug(slug);
-  if (!cat) return { title: "Category" };
+  const cat = await getCategoryBySlug(slug);
+  if (!cat) {
+    return { title: "Category" };
+  }
   return { title: cat.name };
 }
 
@@ -48,8 +50,10 @@ export default async function CategoryCatalogPage({
   searchParams?: Promise<SearchParams>;
 }) {
   const { category: slug } = await params;
-  const cat = getCategoryBySlug(slug);
-  if (!cat) notFound();
+  const cat = await getCategoryBySlug(slug);
+  if (!cat) {
+    notFound();
+  }
 
   const sp = (await searchParams) ?? {};
   const q = first(sp.q);
@@ -63,7 +67,8 @@ export default async function CategoryCatalogPage({
   const ctx = buildSalaryContext(salaryGhs);
   const eligibleOnly = first(sp.eligible) === "1" && salaryGhs != null;
 
-  const filtered = filterProducts({
+  const allProducts = await getProducts();
+  const filtered = filterProducts(allProducts, {
     categorySlug: slug,
     q,
     min: Number.isFinite(min) ? min : undefined,
@@ -83,10 +88,6 @@ export default async function CategoryCatalogPage({
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
       <nav className="mb-4 text-sm text-[color:var(--color-muted)]">
-        <Link href={withSalaryParam("/", salaryGhs)} className="hover:text-[color:var(--color-primary)]">
-          Home
-        </Link>
-        <span className="mx-2">/</span>
         <Link href={withSalaryParam("/catalog", salaryGhs)} className="hover:text-[color:var(--color-primary)]">
           Catalogue
         </Link>
@@ -99,9 +100,10 @@ export default async function CategoryCatalogPage({
           {cat.name}
         </h1>
         <p className="mt-2 text-sm text-[color:var(--color-muted)]">
+          {cat.count} {cat.count === 1 ? "product" : "products"}
           {eligibleOnly && salaryGhs != null
-            ? `Showing the ${cat.name} products unlocked by your ${formatGhs(ctx.creditLimitGhs)} credit limit.`
-            : `${cat.count} products in this category. Each row shows the lowest monthly across 3-6 month plans - fee included.`}
+            ? ` · filtered to your ${formatGhs(ctx.creditLimitGhs)} limit`
+            : ""}
         </p>
       </header>
 
@@ -123,11 +125,7 @@ export default async function CategoryCatalogPage({
           payrollOnly={payrollOnly}
           eligibleOnly={eligibleOnly}
         />
-        <ProductGrid
-          products={products}
-          emptyMessage="No plans fit this combination. Try widening your salary band or removing the payroll-only filter."
-          salaryCtx={ctx}
-        />
+        <ProductGrid products={products} salaryCtx={ctx} />
       </div>
     </div>
   );

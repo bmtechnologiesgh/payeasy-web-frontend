@@ -1,145 +1,96 @@
 "use client";
 
-import { PortalHeader } from "@/components/PortalHeader";
 import { PageHeader } from "@/components/PageHeader";
-import { clearAccessToken, getAccessToken } from "@/lib/auth-token";
-import { me } from "@/lib/ops-api";
+import { OPS_NAV_ITEMS } from "@/components/ops/ops-nav";
+import { useOpsDashboard } from "@/components/ops/ops-dashboard-context";
 import { portalHref } from "@/lib/portal-path";
-import { userMayAccessOpsPortal } from "@/lib/portal-access";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import Link from "next/link";
 
-type DashboardUser = Awaited<ReturnType<typeof me>>;
+const QUICK_LINKS = OPS_NAV_ITEMS.filter((item) => !item.href.endsWith("/dashboard"));
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<DashboardUser | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useOpsDashboard();
 
-  useEffect(() => {
-    const token = getAccessToken();
-    if (!token) {
-      router.replace(portalHref("ops", "/login"));
-      return;
-    }
-
-    me(token)
-      .then((u) => {
-        if (!userMayAccessOpsPortal(u.roles)) {
-          setError("This session is not authorized for the operations portal.");
-          clearAccessToken();
-          return;
-        }
-        setUser(u);
-      })
-      .catch(() => {
-        setError("Unable to load your session. Please sign in again.");
-        clearAccessToken();
-      });
-  }, [router]);
+  if (!user) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-app)]">
-      <PortalHeader portal="ops" contextLabel={user?.email} />
+    <main className="px-4 py-10 sm:px-6">
+      <PageHeader
+        eyebrow="Operations"
+        title="Platform dashboard"
+        subtitle={`Signed in as ${user.full_name}${user.email ? ` (${user.email})` : ""}.`}
+      />
 
-      <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-        {!user && !error ? (
-          <p className="text-sm text-[color:var(--color-muted)]">Loading…</p>
-        ) : null}
+      <section className="mt-10">
+        <h2 className="font-[family-name:var(--font-heading)] text-xl font-bold text-[color:var(--color-foreground)] md:text-2xl">
+          Workspace
+        </h2>
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {QUICK_LINKS.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="flex h-full flex-col rounded-2xl border border-[color:var(--color-border-strong)] bg-white p-5 shadow-sm transition hover:border-[color:var(--color-primary)]/30 hover:shadow-md"
+              >
+                <span className="font-[family-name:var(--font-heading)] text-lg font-bold text-[color:var(--color-foreground)]">
+                  {item.label}
+                </span>
+                {item.description ? (
+                  <span className="mt-1 text-sm text-[color:var(--color-muted)]">{item.description}</span>
+                ) : null}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-        {error ? (
-          <div className="mx-auto max-w-lg space-y-4">
-            <div
-              role="alert"
-              className="rounded-xl border border-[color:var(--color-danger)]/25 bg-[color:var(--color-danger-bg)] px-4 py-3 text-sm text-[color:var(--color-danger)]"
-            >
-              {error}
+      <section className="mt-10 grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <article className="rounded-2xl border border-[color:var(--color-border-strong)] bg-white p-6 shadow-sm">
+          <h2 className="font-[family-name:var(--font-heading)] text-lg font-bold">Priority queues</h2>
+          <ul className="mt-4 divide-y divide-[color:var(--color-border)]">
+            <li>
+              <Link
+                href={portalHref("ops", "/merchants?status=submitted")}
+                className="block py-3 text-sm font-semibold text-[color:var(--color-foreground)] hover:text-[color:var(--color-primary)]"
+              >
+                Pending KYB reviews
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={portalHref("ops", "/users?status=pending")}
+                className="block py-3 text-sm font-semibold text-[color:var(--color-foreground)] hover:text-[color:var(--color-primary)]"
+              >
+                Users pending verification
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={portalHref("ops", "/audit-logs?event_category=security")}
+                className="block py-3 text-sm font-semibold text-[color:var(--color-foreground)] hover:text-[color:var(--color-primary)]"
+              >
+                Security audit events
+              </Link>
+            </li>
+          </ul>
+        </article>
+
+        <article className="rounded-2xl border border-[color:var(--color-border-strong)] bg-white p-6 shadow-sm">
+          <h2 className="font-[family-name:var(--font-heading)] text-lg font-bold">Your access</h2>
+          <dl className="mt-4 space-y-3 text-sm">
+            <div className="flex justify-between gap-4 border-b border-[color:var(--color-border)] pb-3">
+              <dt className="text-[color:var(--color-muted)]">Roles</dt>
+              <dd className="text-right font-semibold">{user.roles.join(", ") || "none"}</dd>
             </div>
-            <button
-              type="button"
-              onClick={() => router.push(portalHref("ops", "/login"))}
-              className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-[color:var(--color-primary)] px-5 text-sm font-semibold text-white transition hover:bg-[color:var(--color-primary-hover)]"
-            >
-              Go to sign in
-            </button>
-          </div>
-        ) : null}
-
-        {user ? (
-          <div className="space-y-10">
-            <PageHeader
-              eyebrow="Operations"
-              title="Platform dashboard"
-              subtitle={`Signed in as ${user.full_name}${user.email ? ` (${user.email})` : ""}. Admin API routes live under /api/admin — wire screens here as features ship.`}
-            />
-
-            <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-              <article className="space-y-4 rounded-2xl border border-[color:var(--color-border-strong)] bg-white p-6 shadow-sm">
-                <h2 className="font-[family-name:var(--font-heading)] text-xl font-bold text-[color:var(--color-foreground)]">
-                  Administration
-                </h2>
-                <p className="text-sm text-[color:var(--color-muted)]">
-                  Users, employers, roster imports, audit logs, and settings are exposed from the Laravel API for
-                  authorized roles. Use your token against <code className="rounded bg-[color:var(--color-muted-bg)] px-1 text-xs">/api/admin/*</code>{" "}
-                  endpoints; the UI will grow to call these with permission-aware navigation.
-                </p>
-              </article>
-
-              <article className="rounded-2xl border border-[color:var(--color-border-strong)] bg-white p-6 shadow-sm">
-                <h2 className="font-[family-name:var(--font-heading)] text-xl font-bold text-[color:var(--color-foreground)]">
-                  Access
-                </h2>
-                <dl className="mt-4 space-y-3 text-sm">
-                  <div className="flex justify-between gap-4 border-b border-[color:var(--color-border)] pb-3">
-                    <dt className="text-[color:var(--color-muted)]">Roles</dt>
-                    <dd className="text-right font-semibold text-[color:var(--color-foreground)]">
-                      {user.roles.join(", ") || "none"}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-[color:var(--color-muted)]">User ID</dt>
-                    <dd className="truncate text-right font-mono text-xs text-[color:var(--color-foreground)]">
-                      {user.uuid}
-                    </dd>
-                  </div>
-                </dl>
-              </article>
-            </section>
-
-            <section>
-              <h2 className="font-[family-name:var(--font-heading)] text-xl font-bold text-[color:var(--color-foreground)] md:text-2xl">
-                Quick links
-              </h2>
-              <ul className="mt-4 divide-y divide-[color:var(--color-border)] rounded-2xl border border-[color:var(--color-border-strong)] bg-white shadow-sm">
-                <li>
-                  <span className="block px-5 py-4 text-sm font-semibold text-[color:var(--color-muted)]">
-                    Users &amp; roles
-                    <span className="mt-0.5 block text-xs font-normal">
-                      Coming soon — <code className="text-[11px]">GET /api/admin/users</code>, role assignment
-                    </span>
-                  </span>
-                </li>
-                <li>
-                  <span className="block px-5 py-4 text-sm font-semibold text-[color:var(--color-muted)]">
-                    Employers &amp; roster
-                    <span className="mt-0.5 block text-xs font-normal">
-                      Coming soon — <code className="text-[11px]">POST /api/admin/employers</code>
-                    </span>
-                  </span>
-                </li>
-                <li>
-                  <span className="block px-5 py-4 text-sm font-semibold text-[color:var(--color-muted)]">
-                    Audit log
-                    <span className="mt-0.5 block text-xs font-normal">
-                      Coming soon — <code className="text-[11px]">GET /api/admin/audit-logs</code>
-                    </span>
-                  </span>
-                </li>
-              </ul>
-            </section>
-          </div>
-        ) : null}
-      </main>
-    </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[color:var(--color-muted)]">User ID</dt>
+              <dd className="truncate font-mono text-xs">{user.uuid}</dd>
+            </div>
+          </dl>
+        </article>
+      </section>
+    </main>
   );
 }

@@ -28,30 +28,7 @@ Set `NEXT_PUBLIC_USE_SUBDOMAIN_PORTALS=true` when each portal is on its own host
 
 ## Where the data comes from
 
-1. **Pricing** — sheet **“PayEasy Pricing”** in `PayEasy_Product_Pricing_Updated_Calculation.xlsx` (repo root). Only **client-safe** columns are exported: product name, category, and 3–6 month **selling** prices. Cost price and fee percentages never go into `src/data/products.json`.
-
-2. **Photos** — embedded images from the source catalogue PDF. The generator copies them into `public/products/` and wires `image` paths in the JSON.
-
-### Regenerate JSON + images
-
-Prerequisites:
-
-- Python 3 with working `xml.etree` (macOS `/usr/bin/python3` is reliable).
-- Poppler (`pdfimages`): `brew install poppler`
-
-Catalogue PDF path (no supplier branding in this repo’s source code):
-
-- Preferred file at repo root: `payeasy-source-catalogue.pdf` (can be a symlink to your latest export), **or**
-- `PAYEASY_CATALOGUE_PDF=/absolute/path/to/file.pdf`
-
-Then:
-
-```bash
-npm run generate:catalog
-git add src/data/products.json public/products
-```
-
-Commit the updated JSON and PNGs so Vercel and teammates do not need Poppler for a normal `npm run build`.
+The public shop reads the PayEasy API catalogue (`NEXT_PUBLIC_PAYEASY_API_URL`, default `http://127.0.0.1:8000/api`). Products, categories, prices, and images are served from the API (seeded in `api.payeasy` via `FirstMerchantCatalogueSeeder` and optional Tech N Sync image sync).
 
 ## Code map (for juniors)
 
@@ -64,9 +41,9 @@ Commit the updated JSON and PNGs so Vercel and teammates do not need Poppler for
 | `src/app/(merchant)/merchant/...` | Merchant onboarding & dashboard |
 | `src/app/(employer)/employer/...` | Employer workspace |
 | `src/app/(ops)/ops/...` | Operations portal |
-| `src/lib/catalog.ts` | Loads `products.json`, category helpers, filter logic |
+| `src/lib/catalog.ts` | Fetches catalogue from API, category helpers, filter logic |
+| `src/lib/catalog-api.ts` | API client + response mapping for storefront products |
 | `src/lib/slug.ts` | Category slug rules (must match URL segments) |
 | `src/components/SiteHeader.tsx` | Top layout: Martfury-style mega menu + search |
-| `scripts/generate-catalog-data.py` | Excel + PDF → JSON + `public/products` |
 
 Styling tokens live in `src/app/globals.css` and follow the PayEasy-aligned design system (petrol green, gold accent, stone background).

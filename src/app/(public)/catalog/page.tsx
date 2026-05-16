@@ -3,7 +3,7 @@ import { CatalogSidebar } from "@/components/CatalogSidebar";
 import { EligibilityBanner } from "@/components/EligibilityBanner";
 import { ProductGrid } from "@/components/ProductGrid";
 import { SalaryChipRow } from "@/components/SalaryChipRow";
-import { filterProducts } from "@/lib/catalog";
+import { filterProducts, getProducts } from "@/lib/catalog";
 import { formatGhs } from "@/lib/format";
 import {
   applyEligibility,
@@ -15,10 +15,14 @@ export const metadata: Metadata = {
   title: "Catalogue",
 };
 
+export const revalidate = 60;
+
 type SearchParams = Record<string, string | string[] | undefined>;
 
 function first(param: string | string[] | undefined): string | undefined {
-  if (Array.isArray(param)) return param[0];
+  if (Array.isArray(param)) {
+    return param[0];
+  }
   return param;
 }
 
@@ -39,7 +43,8 @@ export default async function CatalogPage({
   const ctx = buildSalaryContext(salaryGhs);
   const eligibleOnly = first(sp.eligible) === "1" && salaryGhs != null;
 
-  const filtered = filterProducts({
+  const allProducts = await getProducts();
+  const filtered = filterProducts(allProducts, {
     q,
     min: Number.isFinite(min) ? min : undefined,
     max: Number.isFinite(max) ? max : undefined,
@@ -64,8 +69,8 @@ export default async function CatalogPage({
           {eligibleOnly && salaryGhs != null
             ? `Your ${formatGhs(ctx.creditLimitGhs)} credit limit is filtering this view to products you can buy now.`
             : q
-            ? `Showing results for "${q}". Adjust the salary band or filters to refine.`
-            : "Set your salary band to surface plans that fit your 30% deduction cap."}
+              ? `Showing results for "${q}". Adjust the salary band or filters to refine.`
+              : "Set your salary band to surface plans that fit your 30% deduction cap."}
         </p>
       </header>
 

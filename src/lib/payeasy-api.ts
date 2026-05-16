@@ -74,7 +74,7 @@ export async function postPayeasyJson<TBody extends object, TData = unknown>(
 
 export async function getPayeasyJson<TData = unknown>(
   path: string,
-  token: string,
+  token?: string,
 ): Promise<{ ok: true; status: number; json: ApiEnvelope<TData> } | { ok: false; status: number; text: string }> {
   const url = `${getPayeasyApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
   try {
@@ -82,7 +82,7 @@ export async function getPayeasyJson<TData = unknown>(
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
 
@@ -144,6 +144,112 @@ export async function patchPayeasyJson<TBody extends object, TData = unknown>(
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text) as ApiEnvelope<TData>;
+      return { ok: true, status: res.status, json };
+    } catch {
+      return { ok: false, status: res.status, text };
+    }
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    return { ok: false, status: 0, text: message };
+  }
+}
+
+export async function putPayeasyJson<TBody extends object, TData = unknown>(
+  path: string,
+  body: TBody,
+  token: string,
+): Promise<{ ok: true; status: number; json: ApiEnvelope<TData> } | { ok: false; status: number; text: string }> {
+  const url = `${getPayeasyApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text) as ApiEnvelope<TData>;
+      return { ok: true, status: res.status, json };
+    } catch {
+      return { ok: false, status: res.status, text };
+    }
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    return { ok: false, status: 0, text: message };
+  }
+}
+
+export type PaginatedMeta = {
+  count: number;
+  current_page: number;
+  last_page: number;
+  per_page: number;
+};
+
+export function paginatedMetaFromEnvelope(
+  json: ApiEnvelope<unknown>,
+  fallbackLength: number,
+): PaginatedMeta {
+  const meta = json.meta as PaginatedMeta | undefined;
+  return {
+    count: meta?.count ?? fallbackLength,
+    current_page: meta?.current_page ?? 1,
+    last_page: meta?.last_page ?? 1,
+    per_page: meta?.per_page ?? fallbackLength,
+  };
+}
+
+export async function postPayeasyMultipartAuth<TData = unknown>(
+  path: string,
+  token: string,
+  formData: FormData,
+): Promise<{ ok: true; status: number; json: ApiEnvelope<TData> } | { ok: false; status: number; text: string }> {
+  const url = `${getPayeasyApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text) as ApiEnvelope<TData>;
+      return { ok: true, status: res.status, json };
+    } catch {
+      return { ok: false, status: res.status, text };
+    }
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    return { ok: false, status: 0, text: message };
+  }
+}
+
+export async function deletePayeasyJsonAuth<TData = unknown>(
+  path: string,
+  token: string,
+): Promise<{ ok: true; status: number; json: ApiEnvelope<TData> } | { ok: false; status: number; text: string }> {
+  const url = `${getPayeasyApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  try {
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const text = await res.text();

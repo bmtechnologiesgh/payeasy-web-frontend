@@ -1,7 +1,6 @@
 import {
   getCategories,
   getDealProducts,
-  getProductById,
   getProducts,
 } from "@/lib/catalog";
 import { CategoryTiles } from "@/components/CategoryTiles";
@@ -16,23 +15,23 @@ import {
   buildSalaryContext,
   readSalaryFromSearchParams,
 } from "@/lib/eligibility";
+import type { Product } from "@/lib/catalog";
 
-/**
- * Hero spotlight slides.
- *
- * Each slide carries TWO image references:
- *   - `image`     → product cut-out from `/products/*` (fallback, also used by PDP)
- *   - `heroImage` → curated lifestyle/marketing shot, drop into `public/hero/`
- *                   using the filename below. `HeroSpotlight` renders these
- *                   edge-to-edge (`imageFit: "cover"`) and falls back to `image`
- *                   automatically if the file is missing.
- */
-function buildHeroSlides(): HeroSlide[] {
+export const revalidate = 60;
+
+function findProduct(products: Product[], matcher: (p: Product) => boolean): Product | undefined {
+  return products.find(matcher);
+}
+
+function buildHeroSlides(products: Product[]): HeroSlide[] {
   const slides: HeroSlide[] = [];
-  const tv = getProductById("samsung-led-full-hd-smart-tv-32-inch-r143");
-  const ultra = getProductById("galaxy-s26-ultra-12-256gb-r15");
-  const tablet = getProductById("samsung-tab-s11-ultra-r81");
-  const buds = getProducts().find((p) => p.category === "Earbuds");
+  const tv = findProduct(
+    products,
+    (p) => p.category === "Smart Television" || p.name.toLowerCase().includes("tv"),
+  );
+  const ultra = findProduct(products, (p) => p.name.toLowerCase().includes("s26 ultra"));
+  const tablet = findProduct(products, (p) => p.category === "Tablet");
+  const buds = findProduct(products, (p) => p.category === "Earbuds");
 
   if (tv) {
     slides.push({
@@ -85,13 +84,13 @@ function buildHeroSlides(): HeroSlide[] {
   return slides;
 }
 
-function buildOfferPool() {
-  const deals = getDealProducts(24);
-  const rest = getProducts();
+function buildOfferPool(products: Product[], deals: Product[]) {
   const pool = [...deals];
   const seen = new Set(pool.map((p) => p.id));
-  for (const p of rest) {
-    if (pool.length >= 20) break;
+  for (const p of products) {
+    if (pool.length >= 20) {
+      break;
+    }
     if (!seen.has(p.id)) {
       pool.push(p);
       seen.add(p.id);
@@ -111,27 +110,30 @@ export default async function HomePage({
   const salaryGhs = readSalaryFromSearchParams(sp.salary);
   const ctx = buildSalaryContext(salaryGhs);
 
-  const categories = getCategories();
-  const slides = buildHeroSlides();
-  const pool = buildOfferPool();
+  const [categories, products, deals] = await Promise.all([
+    getCategories(),
+    getProducts(),
+    getDealProducts(24),
+  ]);
+
+  const slides = buildHeroSlides(products);
+  const pool = buildOfferPool(products, deals);
   const row1 = pool.slice(0, 8);
   const row2 = pool.slice(8, 16);
-  const featured = getProducts().slice(0, 10);
-
-  const a = pool[0] ?? getProducts()[0];
-  const b = pool[1] ?? getProducts()[1];
-  const c = pool[2] ?? getProducts()[2];
-  const d = pool[3] ?? getProducts()[3];
+  const featured = products.slice(0, 10);
 
   return (
     <>
       <PromoBannerStrip />
       {slides.length ? <HomeHero categories={categories} slides={slides} salaryGhs={salaryGhs} /> : null}
       <HomeFeaturedOffers row1={row1} row2={row2} salaryCtx={ctx} />
-      <HomeTodaysDeals heroLeft={a} heroRight={b} compactTop={c} compactBottom={d} salaryCtx={ctx} />
-      <CategoryTiles categories={categories} />
-      <HomeFeaturedProducts products={featured} salaryCtx={ctx} />
+      <CategoryTiles categories={categories} products={products} />
+      <HomeTodaysDeals
+        products={deals.length > 0 ? deals : products.slice(0, 12)}
+        salaryCtx={ctx}
+      />
       <TrendingBrands />
+      <HomeFeaturedProducts products={featured} salaryCtx={ctx} />
     </>
   );
 }
