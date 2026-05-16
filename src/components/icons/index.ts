@@ -10,6 +10,7 @@ export {
   IconHeart,
   IconHome,
   IconMenu,
+  IconPackage,
   IconSearch,
   IconShop,
   IconUser,

@@ -33,8 +33,8 @@ export const TENURE_LABELS: Record<TenureKey, string> = {
 export const CREDIT_LIMIT_RATE = 0.5;
 export const DEDUCTION_CAP_RATE = 0.3;
 
-/** Default mock employer used for anonymous demo visitors. */
-export const DEFAULT_EMPLOYER = "Ghana Revenue Authority";
+/** Neutral label until payroll auth supplies the real employer name. */
+export const DEFAULT_EMPLOYER = "Your employer";
 
 export type SalaryContext = {
   /** Raw salary the visitor hinted via `?salary=`. `null` means anonymous browse. */
@@ -215,6 +215,99 @@ export function withSalaryParam(href: string, salaryGhs: number | null): string 
  *   - When `payrollOnly` is set, drops products whose only feasible status is locked.
  *   - Always re-orders to put approved → pending → locked.
  */
+export type CartEligibility = {
+  status: EligibilityStatus;
+  totalMonthly: number;
+  totalPayable: number;
+  itemCount: number;
+  fitsCap: boolean;
+  fitsLimit: boolean;
+  reasons: string[];
+};
+
+export function evaluateCart(
+  items: { monthly: number; total: number }[],
+  ctx: SalaryContext,
+): CartEligibility {
+  const itemCount = items.length;
+  const totalMonthly = items.reduce((sum, item) => sum + item.monthly, 0);
+  const totalPayable = items.reduce((sum, item) => sum + item.total, 0);
+
+  if (itemCount === 0) {
+    return {
+      status: "anonymous",
+      totalMonthly: 0,
+      totalPayable: 0,
+      itemCount: 0,
+      fitsCap: true,
+      fitsLimit: true,
+      reasons: [],
+    };
+  }
+
+  if (ctx.salaryGhs == null) {
+    return {
+      status: "anonymous",
+      totalMonthly,
+      totalPayable,
+      itemCount,
+      fitsCap: true,
+      fitsLimit: true,
+      reasons: [],
+    };
+  }
+
+  const fitsCap = totalMonthly <= ctx.monthlyCapGhs;
+  const fitsLimit = totalPayable <= ctx.creditLimitGhs;
+  const reasons: string[] = [];
+
+  if (!fitsLimit) {
+    reasons.push(
+      `Combined plan total (${formatGhsCompact(totalPayable)}) exceeds your ${formatGhsCompact(ctx.creditLimitGhs)} credit limit.`,
+    );
+  }
+
+  if (!fitsCap) {
+    reasons.push(
+      `Combined monthly deductions (${formatGhsCompact(Math.round(totalMonthly))}) exceed your 30% cap (${formatGhsCompact(ctx.monthlyCapGhs)}/mo).`,
+    );
+  }
+
+  if (fitsCap && fitsLimit) {
+    return {
+      status: "approved",
+      totalMonthly,
+      totalPayable,
+      itemCount,
+      fitsCap,
+      fitsLimit,
+      reasons: [],
+    };
+  }
+
+  if (fitsCap && !fitsLimit) {
+    return {
+      status: "pending",
+      totalMonthly,
+      totalPayable,
+      itemCount,
+      fitsCap,
+      fitsLimit,
+      reasons,
+    };
+  }
+
+  return {
+    status: "locked",
+    totalMonthly,
+    totalPayable,
+    itemCount,
+    fitsCap,
+    fitsLimit,
+    reasons,
+  };
+}
+
 export function applyEligibility(
   products: Product[],
   ctx: SalaryContext,

@@ -48,7 +48,7 @@ export function HorizontalCarousel({
         ref={ref}
         role="region"
         aria-label={ariaLabel}
-        className={`flex gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-md:snap-x max-md:snap-mandatory touch-pan-x ${trackClassName}`}
+        className={`flex items-stretch gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-md:snap-x max-md:snap-mandatory touch-pan-x ${trackClassName}`}
       >
         {children}
       </div>

@@ -59,3 +59,8 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
 }
+
+/** White surface behind product photos (avoids grey frame on white-backed catalogue images). */
+.product-media {
+  background: var(--color-surface);
+}

@@ -1,15 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { CategorySummary } from "@/lib/catalog";
+import type { CategorySummary, Product } from "@/lib/catalog";
 import { getPreviewProductForCategory } from "@/lib/catalog";
 import { SectionHeading } from "@/components/SectionHeading";
 
 type Props = {
   categories: CategorySummary[];
+  products: Product[];
 };
 
 /** Surface categories as visual tiles (product image + label), matching storefront-style category strips. */
-export function CategoryTiles({ categories }: Props) {
+export function CategoryTiles({ categories, products }: Props) {
   const display = categories.slice(0, 12);
 
   return (
@@ -22,14 +23,14 @@ export function CategoryTiles({ categories }: Props) {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {display.map((c) => {
-          const preview = getPreviewProductForCategory(c.name);
+          const preview = getPreviewProductForCategory(products, c.name);
           return (
             <Link
               key={c.slug}
               href={`/catalog/${c.slug}`}
               className="flex flex-col overflow-hidden rounded-2xl border border-transparent bg-[color:var(--color-muted-bg)] transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="relative aspect-square bg-white">
+              <div className="product-media relative aspect-square">
                 {preview ? (
                   <Image
                     src={preview.image}

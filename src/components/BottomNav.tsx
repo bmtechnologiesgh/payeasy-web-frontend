@@ -57,7 +57,7 @@ export function BottomNav() {
   const isShop = pathname.startsWith("/catalog") || pathname.startsWith("/product");
   const isEligibility = pathname.startsWith("/eligibility");
   const isOrders = pathname.startsWith("/orders") || pathname.startsWith("/checkout");
-  const isAccount = pathname.startsWith("/employers") || pathname.startsWith("/how-it-works");
+  const isAccount = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
 
   return (
     <nav
@@ -77,7 +77,7 @@ export function BottomNav() {
         <NavItem href="/orders" label="Orders" active={isOrders}>
           <IconCart className="h-6 w-6" />
         </NavItem>
-        <NavItem href="/how-it-works" label="Help" active={isAccount}>
+        <NavItem href="/sign-in" label="Account" active={isAccount}>
           <IconUser className="h-6 w-6" />
         </NavItem>
       </div>

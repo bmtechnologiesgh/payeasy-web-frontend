@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
-import { BottomNav } from "@/components/BottomNav";
-import { FixedChrome } from "@/components/FixedChrome";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteTopBar } from "@/components/SiteTopBar";
-import { getCategories } from "@/lib/catalog";
+import type { ReactNode } from "react";
+import { EmployeeSessionProvider } from "@/lib/employee-session";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -16,11 +12,11 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: {
-    default: "PayEasy Marketplace",
-    template: "%s · PayEasy Marketplace",
+    default: "PayEasy",
+    template: "%s · PayEasy",
   },
   description:
-    "Browse PayEasy’s corporate BNPL product catalogue — categories, search, and installment price bands.",
+    "PayEasy — employer-verified marketplace, employer workspace, merchant onboarding, and operations tools.",
   icons: {
     icon: [
       { url: "/favicon/favicon-96x96.png", type: "image/png", sizes: "96x96" },
@@ -35,26 +31,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const categories = getCategories();
-
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
-      <body
-        className={`${outfit.variable} flex min-h-screen flex-col antialiased`}
-      >
-        <SiteTopBar />
-        <SiteHeader categories={categories} />
-        <main className="flex-1 bg-[color:var(--color-app)] pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
-          {children}
-        </main>
-        <SiteFooter />
-        <BottomNav />
-        <FixedChrome />
+      <body className={`${outfit.variable} flex min-h-screen flex-col antialiased`}>
+        <EmployeeSessionProvider>{children}</EmployeeSessionProvider>
       </body>
     </html>
   );

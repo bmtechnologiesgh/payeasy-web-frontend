@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/ProductImage";
 import type { Product } from "@/lib/catalog";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import {
-  IconCart,
   IconEye,
   IconHeart,
 } from "@/components/marketplace/icons";
@@ -15,39 +15,17 @@ import {
   withSalaryParam,
 } from "@/lib/eligibility";
 
-function hashId(id: string): number {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) {
-    h = (Math.imul(31, h) + id.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
-
-function ratingFor(id: string): { stars: number; reviews: number } {
-  const h = hashId(id);
-  const stars = 4 + (h % 2);
-  const reviews = (h % 180) + 1;
-  return { stars, reviews };
-}
-
 type Props = {
   product: Product;
   variant?: "grid" | "carousel";
-  showRating?: boolean;
   /** When provided, the card renders eligibility badge + locked overlay. */
   salaryCtx?: SalaryContext;
 };
 
-export function ProductCard({
-  product,
-  variant = "grid",
-  showRating = false,
-  salaryCtx,
-}: Props) {
+export function ProductCard({ product, variant = "grid", salaryCtx }: Props) {
   const ctx = salaryCtx ?? buildSalaryContext(null);
   const evaluation = evaluateProduct(product, ctx);
   const catSlug = slugify(product.category);
-  const { stars, reviews } = ratingFor(product.id);
 
   const monthly = evaluation.bestPlan?.monthly ?? null;
   const months = evaluation.bestPlan?.months ?? null;
@@ -63,14 +41,18 @@ export function ProductCard({
 
   const isLocked = evaluation.status === "locked";
   const isPending = evaluation.status === "pending";
+  const cartTenure =
+    evaluation.bestPlan?.tenure ??
+    evaluation.plans[evaluation.plans.length - 1]?.tenure ??
+    "months6";
 
   return (
     <article
-      className={`group flex flex-col overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${widthClass} ${
+      className={`group flex h-full flex-col overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${widthClass} ${
         isLocked ? "opacity-70" : ""
       }`}
     >
-      <Link href={href} className="relative block aspect-square bg-[color:var(--color-muted-bg)]">
+      <Link href={href} className="product-media relative block aspect-square">
         {product.deal ? (
           <span className="absolute left-2 top-2 z-[1] rounded-md bg-[color:var(--color-sale)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
             Deal
@@ -96,24 +78,17 @@ export function ProductCard({
             </span>
           </>
         ) : null}
-        <Image
+        <ProductImage
           src={product.image}
           alt={product.name}
-          fill
+          category={product.category}
           sizes="(max-width:768px) 50vw, 25vw"
-          className="object-contain p-4 transition group-hover:scale-[1.02]"
-          unoptimized
+          className="object-contain p-2 transition group-hover:scale-[1.02] sm:p-3"
         />
       </Link>
       {variant === "carousel" ? (
         <div className="flex items-center justify-between border-t border-[color:var(--color-border)] px-3 py-2">
-          <Link
-            href={href}
-            className="rounded-md p-2 text-[color:var(--color-muted)] hover:bg-[color:var(--color-muted-bg)] hover:text-[color:var(--color-foreground)]"
-            aria-label="Add to cart"
-          >
-            <IconCart className="h-5 w-5" />
-          </Link>
+          <AddToCartButton product={product} tenure={cartTenure} salaryCtx={ctx} />
           <Link
             href={href}
             className="rounded-md p-2 text-[color:var(--color-muted)] hover:bg-[color:var(--color-muted-bg)] hover:text-[color:var(--color-foreground)]"
@@ -142,8 +117,11 @@ export function ProductCard({
         >
           {product.category}
         </Link>
-        <Link href={href}>
-          <h3 className="font-[family-name:var(--font-heading)] text-sm font-semibold leading-snug text-[color:var(--color-foreground)] group-hover:underline md:text-base">
+        <Link href={href} className="block min-h-[2.75rem]">
+          <h3
+            className="line-clamp-2 font-[family-name:var(--font-heading)] text-sm font-semibold leading-snug text-[color:var(--color-foreground)] group-hover:underline md:text-base"
+            title={product.name}
+          >
             {product.name}
           </h3>
         </Link>
@@ -181,15 +159,6 @@ export function ProductCard({
             </p>
           ) : null}
         </div>
-        {showRating ? (
-          <p className="flex items-center gap-1 text-xs text-[color:var(--color-muted)]">
-            <span className="text-[color:var(--color-stars)]" aria-hidden>
-              {"★".repeat(stars)}
-              {"☆".repeat(5 - stars)}
-            </span>
-            <span>({reviews})</span>
-          </p>
-        ) : null}
       </div>
     </article>
   );

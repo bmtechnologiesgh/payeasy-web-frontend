@@ -2,15 +2,16 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import type { CategorySummary } from "@/lib/catalog";
+import { CartIconLink } from "@/components/cart/CartIconLink";
+import { HeaderAccountNav } from "@/components/HeaderAccountNav";
 import { MobileNav } from "@/components/MobileNav";
 import {
-  IconCart,
   IconHeart,
-  IconUser,
+  IconPackage,
 } from "@/components/marketplace/icons";
 import { SalaryHintChip } from "@/components/SalaryHintChip";
 import { SearchBar } from "@/components/SearchBar";
-
+import { PayEasyLogo } from "@/components/PayEasyLogo";
 type Props = {
   categories: CategorySummary[];
 };
@@ -43,40 +44,24 @@ export function SiteHeader({ categories }: Props) {
       <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 lg:grid-cols-[minmax(0,auto)_minmax(0,1fr)_minmax(0,auto)] lg:items-center lg:gap-x-4 lg:gap-y-0 xl:gap-x-6">
         {/* Row 1 mobile / Col 1 desktop: menu + brand */}
         <div className="flex min-w-0 items-center justify-between gap-2 lg:justify-start lg:gap-3">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden sm:gap-3 lg:flex-none">
             <MobileNav categories={categories} />
-            <Link href="/" className="flex min-w-0 items-center gap-2 text-left">
-              <span className="flex shrink-0 gap-0.5" aria-hidden>
-                <span className="h-2.5 w-2.5 rounded-sm bg-[#e53935]" />
-                <span className="h-2.5 w-2.5 rounded-sm bg-[#43a047]" />
-                <span className="h-2.5 w-2.5 rounded-sm bg-[#1e88e5]" />
-                <span className="h-2.5 w-2.5 rounded-sm bg-[#fbc02d]" />
-              </span>
-              <span className="min-w-0">
-                <span className="font-[family-name:var(--font-heading)] text-lg font-extrabold tracking-tight text-[color:var(--color-foreground)] sm:text-xl">
-                  PayEasy
-                </span>
-                <span className="mt-0.5 block text-[10px] font-semibold leading-none text-[color:var(--color-muted)] sm:text-[11px]">
-                  Payroll-backed BNPL
-                </span>
-              </span>
-            </Link>
+            <PayEasyLogo />
           </div>
 
           {/* Mobile / tablet: utilities on same row as logo */}
           <nav
-            aria-label="Account and cart"
+            aria-label="Account, wishlist, orders and cart"
             className="flex shrink-0 items-center gap-0 sm:gap-0.5 lg:hidden"
           >
-            <HeaderIconLink href="/eligibility" label="Account">
-              <IconUser className="h-5 w-5 sm:h-6 sm:w-6" />
-            </HeaderIconLink>
-            <HeaderIconLink href="/orders" label="Orders">
+            <HeaderAccountNav compact />
+            <HeaderIconLink href="/wishlist" label="Wishlist">
               <IconHeart className="h-5 w-5 sm:h-6 sm:w-6" />
             </HeaderIconLink>
-            <HeaderIconLink href="/catalog" label="Cart">
-              <IconCart className="h-5 w-5 sm:h-6 sm:w-6" />
+            <HeaderIconLink href="/orders" label="Orders">
+              <IconPackage className="h-5 w-5 sm:h-6 sm:w-6" />
             </HeaderIconLink>
+            <CartIconLink compact />
           </nav>
         </div>
 
@@ -93,21 +78,20 @@ export function SiteHeader({ categories }: Props) {
 
         {/* Desktop-only: utilities in third column (avoids duplicate search) */}
         <nav
-          aria-label="Account, eligibility and cart"
+          aria-label="Account, wishlist, orders and cart"
           className="hidden shrink-0 items-center justify-end gap-0.5 sm:gap-1 lg:flex"
         >
           <span className="mr-1 inline-flex">
             <SalaryHintChip />
           </span>
-          <HeaderIconLink href="/eligibility" label="Account">
-            <IconUser className="h-6 w-6" />
-          </HeaderIconLink>
-          <HeaderIconLink href="/orders" label="Orders">
+          <HeaderAccountNav />
+          <HeaderIconLink href="/wishlist" label="Wishlist">
             <IconHeart className="h-6 w-6" />
           </HeaderIconLink>
-          <HeaderIconLink href="/catalog" label="Cart">
-            <IconCart className="h-6 w-6" />
+          <HeaderIconLink href="/orders" label="Orders">
+            <IconPackage className="h-6 w-6" />
           </HeaderIconLink>
+          <CartIconLink />
         </nav>
       </div>
     </header>

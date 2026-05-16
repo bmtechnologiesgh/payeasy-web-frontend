@@ -76,6 +76,17 @@ export function IconHeart(props: Props) {
   );
 }
 
+/** Orders / track parcel — closed box with lid seam (distinct from wishlist heart). */
+export function IconPackage(props: Props) {
+  return (
+    <Icon32 {...props}>
+      <path {...iconStroke} strokeLinejoin="round" d="M9 15h14v11a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 019 26V15z" />
+      <path {...iconStroke} strokeLinejoin="round" d="M9 15V13.5A1.5 1.5 0 0110.5 12h11A1.5 1.5 0 0123 13.5V15" />
+      <path {...iconStroke} strokeLinejoin="round" d="M9 15l7-3.5L23 15" />
+    </Icon32>
+  );
+}
+
 export function IconCart(props: Props) {
   return (
     <Icon32 {...props}>

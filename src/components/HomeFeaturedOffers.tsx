@@ -13,7 +13,7 @@ type Props = {
 
 function PromoEmployee() {
   return (
-    <div className="flex min-w-[260px] max-w-[280px] shrink-0 flex-col justify-between rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-primary)] p-6 text-white shadow-sm">
+    <div className="flex h-full min-h-0 min-w-[260px] max-w-[280px] shrink-0 flex-col justify-between self-stretch rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-primary)] p-6 text-white shadow-sm">
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/65">
           For salaried employees
@@ -37,7 +37,7 @@ function PromoEmployee() {
 
 function PromoEmployer() {
   return (
-    <div className="flex min-w-[260px] max-w-[280px] shrink-0 flex-col justify-between rounded-xl border border-[color:var(--color-border)] bg-white p-0 shadow-sm">
+    <div className="flex h-full min-h-0 min-w-[260px] max-w-[280px] shrink-0 flex-col justify-between self-stretch rounded-xl border border-[color:var(--color-border)] bg-white p-0 shadow-sm">
       <div className="rounded-t-xl bg-[color:var(--color-muted-bg)] px-6 py-8 text-center">
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--color-muted)]">
           For HR & finance

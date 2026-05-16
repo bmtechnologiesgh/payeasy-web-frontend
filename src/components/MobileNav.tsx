@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { CategorySummary } from "@/lib/catalog";
 import { IconMenu } from "@/components/marketplace/icons";
+import type { CategorySummary } from "@/lib/catalog";
+import { merchantRegisterHref } from "@/lib/merchant-portal";
 
 type Props = {
   categories: CategorySummary[];
@@ -50,8 +51,12 @@ export function MobileNav({ categories }: Props) {
             </p>
             <ul className="space-y-0.5">
               {[
+                { href: "/sign-in", label: "Sign in" },
+                { href: "/sign-up", label: "Create account" },
+                { href: "/forgot-password", label: "Forgot password" },
                 { href: "/eligibility", label: "Check eligibility" },
                 { href: "/how-it-works", label: "How it works" },
+                { href: "/wishlist", label: "Wishlist" },
                 { href: "/orders", label: "My orders" },
                 { href: "/employers", label: "For employers" },
               ].map((item) => (
@@ -65,6 +70,15 @@ export function MobileNav({ categories }: Props) {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  href={merchantRegisterHref()}
+                  className="block px-4 py-2.5 text-sm font-semibold text-[color:var(--color-foreground)] hover:bg-[color:var(--color-muted-bg)]"
+                  onClick={() => setOpen(false)}
+                >
+                  Sell on PayEasy
+                </Link>
+              </li>
             </ul>
             <p className="mt-3 border-t border-[color:var(--color-border)] px-4 pb-2 pt-3 text-[11px] font-semibold uppercase tracking-wide text-[color:var(--color-muted)]">
               Categories
